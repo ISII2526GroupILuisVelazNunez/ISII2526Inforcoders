@@ -2,6 +2,7 @@
 {
     public class PayPal : PaymentMethod
     {
+        public string Email { get; set; }
         public bool Equals(Object obj)
         {
             if (obj == this)
