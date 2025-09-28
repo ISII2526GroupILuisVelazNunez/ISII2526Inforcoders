@@ -5,6 +5,7 @@
         public int ClassId { get; set; }
         public string Goal { get; set; }
         public int PlanId { get; set; }
+        public decimal Price { get; set; }
 
     }
 }
