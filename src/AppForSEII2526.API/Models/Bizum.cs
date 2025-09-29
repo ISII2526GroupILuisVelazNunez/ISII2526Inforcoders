@@ -1,15 +1,7 @@
 ﻿namespace AppForSEII2526.API.Models
 {
-    public class Bizum : PaymentMethod
+    public class Bizum
     {
-        public long TelephoneNumber { get; set; }
-        public bool Equals(Object obj)
-        {
-            if (obj == this)
-            {
-                return true;
-            }
-            return false;
-        }
+        public int TelephoneNumber { get; set; }
     }
 }

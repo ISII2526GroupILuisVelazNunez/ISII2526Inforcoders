@@ -1,6 +1,6 @@
 ﻿namespace AppForSEII2526.API.Models
 {
-    public class PayPal : PaymentMethod
+    public class PayPal
     {
         public string Email { get; set; }
         public bool Equals(Object obj)
