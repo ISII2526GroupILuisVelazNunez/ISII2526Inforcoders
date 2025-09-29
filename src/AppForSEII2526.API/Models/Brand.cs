@@ -1,8 +1,9 @@
 ﻿namespace AppForSEII2526.API.Models
 {
-    public class PayPal
+    public class Brand
     {
-        public string Email { get; set; }
+        public int Id { get; set; }
+        public string Name { get; set; }
         public bool Equals(Object obj)
         {
             if (obj == this)
