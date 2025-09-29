@@ -10,6 +10,7 @@ namespace AppForSEII2526.API.Models
         public DateTime Date { get; set;}
         public string Description { get; set;}
         public string Street { get; set;}
+        [Precision(10, 2)]
         public decimal Total_price { get; set;}
         public bool Equals(Object obj)
         {
