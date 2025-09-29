@@ -7,7 +7,10 @@
         public string HealthIssues { get; set; }
         public int Id { get; set; }
         public string Name { get; set; }
+
+        [Precision(5,2)]
         public decimal TotalPrice { get; set; }
         public int Weeks { get; set; }
+        public IList<PlanItem> PlanItems { get; set; } // Class relationship with PlanItem
     }
 }
