@@ -5,6 +5,7 @@
         [Key]
         public int Id { get; set; }
         public ApplicationUser User { get; set; }
+        public IList<Purchase> Purchases { get; set; }
 
     }
 }
