@@ -3,9 +3,13 @@
   <Class Name="AppForSEII2526.API.Models.Item">
     <Position X="1.25" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAGAAAACARgAAAAgABAAAQAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAGAAAACARgAAAAgABAAAQAAAAAAAAAAAAAAAABAgA=</HashCode>
       <FileName>Models\Item.cs</FileName>
     </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Brand" />
+      <Property Name="ItemType" />
+    </ShowAsAssociation>
     <ShowAsCollectionAssociation>
       <Property Name="PurchaseItems" />
     </ShowAsCollectionAssociation>
@@ -13,12 +17,43 @@
   <Class Name="AppForSEII2526.API.Models.PurchaseItem">
     <Position X="5.25" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAABQAAAAAAgAAAAAAEAAAEAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAQAAAAABQAAAAAAgAAAAAAEAAAEAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Models\PurchaseItem.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
       <Property Name="Item" />
+      <Property Name="Purchase" />
     </ShowAsAssociation>
+  </Class>
+  <Class Name="AppForSEII2526.API.Models.Purchase">
+    <Position X="9.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAABgAAAIgAAAAAAAAAIAAAABAAMAAAAAAAA=</HashCode>
+      <FileName>Models\Purchase.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="PurchaseItems" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="AppForSEII2526.API.Models.ItemType">
+    <Position X="5.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAACAAAgAAAAAQAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\ItemType.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="Items" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="AppForSEII2526.API.Models.Brand">
+    <Position X="1.25" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAACAAAgAAAAAQAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\Brand.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="Items" />
+    </ShowAsCollectionAssociation>
   </Class>
   <Font Name="Segoe UI" Size="9" />
 </ClassDiagram>
