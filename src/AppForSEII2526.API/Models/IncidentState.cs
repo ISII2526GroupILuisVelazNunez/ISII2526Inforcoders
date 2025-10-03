@@ -1,12 +1,9 @@
 ﻿namespace AppForSEII2526.API.Models
 {
-    public class IncidentState
+    public enum IncidentState
     {
-        public enum State
-        {
-            Submitted,
-            In_progress,
-            Done
-        }
+        Submitted,
+        In_progress,
+        Done
     }
 }

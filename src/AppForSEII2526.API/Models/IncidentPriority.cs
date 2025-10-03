@@ -1,12 +1,9 @@
 ﻿namespace AppForSEII2526.API.Models
 {
-    public class IncidentPriority
+    public enum IncidentPriority
     {
-        public enum Priority
-        {
-            High,
-            Medium,
-            Low
-        }
+        High,
+        Medium,
+        Low
     }
 }

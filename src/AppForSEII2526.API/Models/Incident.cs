@@ -10,7 +10,9 @@
         [StringLength(32, ErrorMessage = "The exercise name should be between 1 and 32 characters long")]
         public string Exercise { get; set; }
         public DateTime DateOfIdentification { get; set;}
+        public IList<IncidentItem> IncidentItems { get; set; }
         public IncidentState IncidentState { get; set;}
+        public ApplicationUser User { get; set; }
 
         public Incident(int id, string title, string description, string exercise, DateTime dateOfIdentification)
         {
