@@ -9,6 +9,7 @@
         public int Amount_bought {  get; set; }
         [Precision(10, 2)]
         public decimal Price { get; set; }
+        public Purchase Purchase { get; set; }
         public int PurchaseId { get; set; }
         public bool Equals(Object obj)
         {
