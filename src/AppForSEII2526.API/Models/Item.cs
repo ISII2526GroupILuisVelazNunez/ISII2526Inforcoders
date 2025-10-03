@@ -10,6 +10,8 @@
         public int QuantityAvailableForComedy { get; set; }
         public int QuantityForRestock { get; set; }
         public IList<PurchaseItem> PurchaseItems { get; set; }
+        public ItemType ItemType { get; set; }
+        public Brand Brand { get; set; }
         [Precision(10,2)]
         public decimal? RestockPrice { get; set; }
         public bool Equals(Object obj)

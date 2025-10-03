@@ -6,5 +6,6 @@ namespace AppForSEII2526.API.Models;
 public class ApplicationUser : IdentityUser {
     public string Name { get; set; }
     public string Surname { get; set; }
+    public IList<PaymentMethod> PaymentMethods { get; set; }
     public IList<Incident> Incidents { get; set; }
 }
