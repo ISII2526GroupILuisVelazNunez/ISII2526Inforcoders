@@ -5,9 +5,6 @@ using AppForSEII2526.API.Models;
 namespace AppForSEII2526.API.Data;
 
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<ApplicationUser>(options) {
-<<<<<<< HEAD
-    public DbSet<Incident> Incidents { get; set; }
-=======
     public DbSet<Bizum> Bizums { get; set; }
     public DbSet<Brand> Brands { get; set; }
     public DbSet<CreditCard> CreditCards { get; set; }
@@ -21,5 +18,5 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     
     public DbSet<Plan> Plans { get; set; }
     public DbSet<PlanItem> PlanItems { get; set; }
->>>>>>> development
+    public DbSet<Incident> Incidents { get; set; }
 }

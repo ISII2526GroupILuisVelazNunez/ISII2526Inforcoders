@@ -10,5 +10,24 @@
         [StringLength(32, ErrorMessage = "The exercise name should be between 1 and 32 characters long")]
         public string Exercise { get; set; }
         public DateTime DateOfIdentification { get; set;}
+
+        public Incident(int id, string title, string description, string exercise, DateTime dateOfIdentification)
+        {
+            Id = id;
+            Title = title;
+            Description = description;
+            Exercise = exercise;
+            DateOfIdentification = dateOfIdentification;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is Incident incident &&
+                   Id == incident.Id &&
+                   Title == incident.Title &&
+                   Description == incident.Description &&
+                   Exercise == incident.Exercise &&
+                   DateOfIdentification == incident.DateOfIdentification;
+        }
     }
 }
