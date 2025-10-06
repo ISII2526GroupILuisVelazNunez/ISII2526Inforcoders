@@ -2,6 +2,6 @@
 {
     public class Bizum:PaymentMethod
     {
-        public int TelephoneNumber { get; set; }
+        public long TelephoneNumber { get; set; }
     }
 }

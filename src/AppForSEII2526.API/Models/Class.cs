@@ -1,5 +1,6 @@
 ﻿namespace AppForSEII2526.API.Models
 {
+    [Index(nameof(Name), IsUnique = true)]
     public class Class
     {
         public int Capacity { get; set; }
