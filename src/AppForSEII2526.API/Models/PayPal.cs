@@ -1,6 +1,6 @@
 ﻿namespace AppForSEII2526.API.Models
 {
-    public class PayPal
+    public class PayPal:PaymentMethod
     {
         [EmailAddress(ErrorMessage = "The Email field is not a valid e-mail address.")]
         [Required]
