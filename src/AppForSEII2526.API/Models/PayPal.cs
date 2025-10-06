@@ -2,6 +2,8 @@
 {
     public class PayPal
     {
+        [EmailAddress(ErrorMessage = "The Email field is not a valid e-mail address.")]
+        [Required]
         public string Email { get; set; }
         public bool Equals(Object obj)
         {

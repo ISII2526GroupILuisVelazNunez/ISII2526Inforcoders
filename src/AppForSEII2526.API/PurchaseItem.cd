@@ -3,12 +3,12 @@
   <Class Name="AppForSEII2526.API.Models.Item">
     <Position X="1.25" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAGAAAACARgAAAAgABAAAQAAAAAAAAAAAAAAAABAgA=</HashCode>
+      <HashCode>AAAGAAAACARgAAAAgABAAAQAAAAAAAAAAAIAAAABAAA=</HashCode>
       <FileName>Models\Item.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
       <Property Name="Brand" />
-      <Property Name="ItemType" />
+      <Property Name="TypeItem" />
     </ShowAsAssociation>
     <ShowAsCollectionAssociation>
       <Property Name="PurchaseItems" />
@@ -38,16 +38,6 @@
       <Property Name="PurchaseItems" />
     </ShowAsCollectionAssociation>
   </Class>
-  <Class Name="AppForSEII2526.API.Models.ItemType">
-    <Position X="5.75" Y="3.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAACAAAAAAAACAAAgAAAAAQAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Models\ItemType.cs</FileName>
-    </TypeIdentifier>
-    <ShowAsCollectionAssociation>
-      <Property Name="Items" />
-    </ShowAsCollectionAssociation>
-  </Class>
   <Class Name="AppForSEII2526.API.Models.Brand">
     <Position X="1.25" Y="4.25" Width="1.5" />
     <TypeIdentifier>
@@ -61,7 +51,7 @@
   <Class Name="AppForSEII2526.API.Models.ApplicationUser">
     <Position X="13" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAACAAAAAAAAAAAAAAAQABAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAACAAAAAQAAAAAAAAAQABAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Models\ApplicationUser.cs</FileName>
     </TypeIdentifier>
     <ShowAsCollectionAssociation>
@@ -101,6 +91,16 @@
       <HashCode>gAAAAAAAAAAAAAAAgAAAAAAAQAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Models\CreditCard.cs</FileName>
     </TypeIdentifier>
+  </Class>
+  <Class Name="AppForSEII2526.API.Models.TypeItem">
+    <Position X="4.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAACAAAgAAAAAQAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\TypeItem.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="Items" />
+    </ShowAsCollectionAssociation>
   </Class>
   <Font Name="Segoe UI" Size="9" />
 </ClassDiagram>

@@ -2,6 +2,6 @@
 {
     public class Bizum
     {
-        public int TelephoneNumber { get; set; }
+        public long TelephoneNumber { get; set; }
     }
 }

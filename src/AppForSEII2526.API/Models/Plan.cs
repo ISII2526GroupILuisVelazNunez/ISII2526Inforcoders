@@ -1,5 +1,6 @@
 ﻿namespace AppForSEII2526.API.Models
 {
+    [Index(nameof(Name), IsUnique = true)]
     public class Plan
     {
         public DateTime CreatedDate { get; set; }
@@ -22,5 +23,8 @@
 
         [Required]
         public IList<PlanItem> PlanItems { get; set; } // Class relationship with PlanItem
+        [Required]
+        public PaymentMethod PaymentMethod { get; set; } // Class relationship with PaymentMethod
+
     }
 }

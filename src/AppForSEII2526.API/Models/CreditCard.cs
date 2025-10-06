@@ -2,7 +2,7 @@
 {
     public class CreditCard
     {
-        public int CreditCardNumber { get; set; }
+        public long CreditCardNumber { get; set; }
         public DateTime ExpirationDate { get; set; }
         public bool Equals(Object obj)
         {
