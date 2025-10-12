@@ -6,6 +6,8 @@
     {
         public int ItemId { get; set; }
         public Item Item { get; set; }
+        public int Quantity { get; set; }
+        [Range(1, int.MaxValue, ErrorMessage = "You must purchase at least one item.")]
         public int Amount_bought {  get; set; }
         [Precision(10, 2)]
         public decimal Price { get; set; }

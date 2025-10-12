@@ -5,11 +5,17 @@ namespace AppForSEII2526.API.Models
     public class Purchase
     {
         public int Id {get; set;}
-        public string City { get; set;} 
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please, specify the city.")]
+        public string City { get; set;}
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please, specify the country.")]
         public string Country { get; set;}
+        [Required]
         public DateTime Date { get; set;}
+        [StringLength(200, ErrorMessage = "Description must be shorter than 200 characters.")]
         public string Description { get; set;}
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Please, specify the street.")]
         public string Street { get; set;}
+        [Required]
         public IList<PurchaseItem> PurchaseItems { get; set; }
         [Precision(10, 2)]
         public decimal Total_price { get; set;}
