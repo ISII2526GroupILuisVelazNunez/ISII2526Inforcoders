@@ -3,14 +3,23 @@
     public class Item
     {
         public int Id { get; set; }
+        [StringLength(70, ErrorMessage = "The description of the Item can be neither longer than 30 characters nor shorter than 1",
+        MinimumLength = 1)]
+        [Required]
         public string Description { get; set; }
+        [StringLength(30, ErrorMessage = "The name of the Item can be neither longer than 30 characters nor shorter than 1",
+        MinimumLength = 1)]
+        [Required]
         public string Name { get; set; }
         [Precision(10, 2)]
+        [Required]
         public decimal PurchasePrice { get; set; }
-        public int QuantityAvailableForComedy { get; set; }
+        [Required]
+        public int QuantityAvailableForPurchase { get; set; }
         public int QuantityForRestock { get; set; }
         public IList<PurchaseItem> PurchaseItems { get; set; }
         public TypeItem TypeItem { get; set; }
+        [Required]
         public Brand Brand { get; set; }
         [Precision(10,2)]
         public decimal? RestockPrice { get; set; }
