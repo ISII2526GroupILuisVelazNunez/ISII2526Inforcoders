@@ -19,6 +19,7 @@ namespace AppForSEII2526.API.Models
         public IList<PurchaseItem> PurchaseItems { get; set; }
         [Precision(10, 2)]
         public decimal Total_price { get; set;}
+        [Required]
         public PaymentMethod PaymentMethod { get; set;}
         public bool Equals(Object obj)
         {
