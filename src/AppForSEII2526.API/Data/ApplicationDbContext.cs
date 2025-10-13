@@ -18,6 +18,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Class> Classes { get; set; }
     public DbSet<Plan> Plans { get; set; }
     public DbSet<PlanItem> PlanItems { get; set; }
-    public DbSet<Incident> Incidents { get; set; }
-    public DbSet<IncidentItem> IncidentItems { get; set; }
+    //public DbSet<Incident> Incidents { get; set; }
+    //public DbSet<IncidentItem> IncidentItems { get; set; }
 }
