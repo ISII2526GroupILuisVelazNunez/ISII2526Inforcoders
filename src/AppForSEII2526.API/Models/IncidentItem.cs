@@ -3,8 +3,13 @@
     public class IncidentItem
     {
         public int IncidentId { get; set; }
+
+        [ForeignKey(nameof(IncidentId))]
         public Incident Incident { get; set; }
+        
         public int ItemId { get; set; }
+
+        [ForeignKey(nameof(ItemId))]
         public ItemForExercise ItemForExercise { get; set; }
         public IncidentPriority IncidentPriority { get; set; }
         public IncidentItem() { }
