@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AppForSEII2526.API.DTOs.ItemForExerciseDTOs;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppForSEII2526.API.Controllers
@@ -34,6 +35,20 @@ namespace AppForSEII2526.API.Controllers
         }
         */
 
+        [HttpGet]
+        [Route("[action]")]
+        [ProducesResponseType(typeof(IList<ItemForReportingDTO>), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult> GetItemsForReporting(string? itemName, string? itemLocation)
+        {
+            IList<ItemForReportingDTO> items = await _context.ItemsForExercise
+                .Where(i=>i.Location.Contains(itemLocation) 
+                    || itemLocation == null)
+                .OrderBy(i=>i.Id)
+                    .ThenBy(i=>i.Location)
+                .Select(i=>new ItemForReportingDTO(i.Id, i.Location, i.Item.Name))
+                .ToListAsync();
+            return Ok(items);
+        }
 
     }
 }
