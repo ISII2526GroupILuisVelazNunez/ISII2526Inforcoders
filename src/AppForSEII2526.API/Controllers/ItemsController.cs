@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AppForSEII2526.API.DTOs.ItemDTOs;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppForSEII2526.API.Controllers
@@ -31,5 +32,19 @@ namespace AppForSEII2526.API.Controllers
         //    decimal result = op1 / op2;
         //    return Ok(result);
         //}
+
+        [HttpGet]
+        [Route("[action]")]
+        [ProducesResponseType(typeof(IList<ItemForPurchaseDTO>), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult> GetItemsForPurchasing(string? itemName){
+            IList<ItemForPurchaseDTO> itemsDTOS = await _context.Items
+                .Include(i=>i.Brand) //para reuniones con otras tablas. ThenInclude
+                .Where(i=>i.Name.Contains(itemName)
+                || (itemName == null)) //&& en el where (mirar pdf)
+                .OrderBy(i=>i.Name) //OrderByDescending, ThenBy, ThenByDescending are also available
+                .Select(i=>new ItemForPurchaseDTO(i.Id, i.Name, i.Brand.Name))
+                .ToListAsync();
+            return Ok(itemsDTOS);
+        }
     }
 }
