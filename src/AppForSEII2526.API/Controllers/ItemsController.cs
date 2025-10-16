@@ -1,6 +1,7 @@
 ﻿using AppForSEII2526.API.DTOs.ItemDTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace AppForSEII2526.API.Controllers
 {
@@ -36,13 +37,17 @@ namespace AppForSEII2526.API.Controllers
         [HttpGet]
         [Route("[action]")]
         [ProducesResponseType(typeof(IList<ItemForPurchaseDTO>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult> GetItemsForPurchasing(string? itemName){
+        public async Task<ActionResult> GetItemsForPurchasing(string? itemName, string? itemBrandName){
             IList<ItemForPurchaseDTO> itemsDTOS = await _context.Items
                 .Include(i=>i.Brand) //para reuniones con otras tablas. ThenInclude
-                .Where(i=>i.Name.Contains(itemName)
-                || (itemName == null)) //&& en el where (mirar pdf)
+                .Where(i=>(
+                (i.Brand.Name.Contains(itemBrandName) && i.Name == null && i.Brand.Name != null) //Right now, only this applies (both must be added)
+                || (i.Name.Contains(itemName) && i.Brand.Name == null && i.Name != null)
+                || (i.Name.Contains(itemName) && i.Brand.Name.Contains(itemBrandName) && i.Name != null && i.Brand.Name != null)
+                )
+                ) 
                 .OrderBy(i=>i.Name) //OrderByDescending, ThenBy, ThenByDescending are also available
-                .Select(i=>new ItemForPurchaseDTO(i.Id, i.Name, i.Brand.Name))
+                .Select(i=>new ItemForPurchaseDTO(i.Id, i.Name, i.Brand.Name, i.Description, i.PurchasePrice, i.QuantityAvailableForPurchase))
                 .ToListAsync();
             return Ok(itemsDTOS);
         }
