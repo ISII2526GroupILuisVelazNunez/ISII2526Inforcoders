@@ -20,4 +20,5 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<PlanItem> PlanItems { get; set; }
     public DbSet<Incident> Incidents { get; set; }
     public DbSet<IncidentItem> IncidentItems { get; set; }
+    public DbSet<ItemForExercise> ItemsForExercise { get; set; }
 }
