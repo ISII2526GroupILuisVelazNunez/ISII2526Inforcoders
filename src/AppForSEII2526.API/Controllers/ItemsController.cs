@@ -17,24 +17,6 @@ namespace AppForSEII2526.API.Controllers
             _logger = logger;
         }
 
-        /*
-        [HttpGet]
-        [Route("[action]")]
-        [ProducesResponseType(typeof(decimal), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> ComputeDivision(decimal op1, decimal op2) 
-        {
-            if (op2 == 0)
-            {
-                string error = "Error: Division by 0!";
-                _logger.LogError(DateTime.Now + " - " + error);
-                return BadRequest(error);
-            }
-            decimal result = op1 / op2;
-            return Ok(result);
-        }
-        */
-
         [HttpGet]
         [Route("[action]")]
         [ProducesResponseType(typeof(IList<ItemForReportingDTO>), (int)HttpStatusCode.OK)]
