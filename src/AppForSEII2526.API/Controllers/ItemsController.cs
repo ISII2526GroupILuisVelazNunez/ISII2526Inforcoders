@@ -40,15 +40,16 @@ namespace AppForSEII2526.API.Controllers
         [ProducesResponseType(typeof(IList<ItemForReportingDTO>), (int)HttpStatusCode.OK)]
         public async Task<ActionResult> GetItemsForReporting(string? itemName, string? itemLocation)
         {
-            IList<ItemForReportingDTO> items = await _context.ItemsForExercise
-                .Include(i=>i.Item)
-                .Where(i=>i.Location.Contains(itemLocation) 
-                    || itemLocation == null)
-                .OrderBy(i=>i.Id)
-                    .ThenBy(i=>i.Location)
-                .Select(i=>new ItemForReportingDTO(i.Id, i.Location, i.Item.Name))
+            IList<ItemForReportingDTO> IFEs = await _context.ItemsForExercise
+                .Include(ife=>ife.Item)
+                    .ThenInclude(i=>i.TypeItem)
+                .Where(ife=>(ife.Location.Contains(itemLocation)) || itemLocation == null)
+                    .Where(ife=>(ife.Item.Name.Contains(itemName)) || itemName == null)
+                .OrderBy(ife=>ife.Item.Name)
+                    .ThenBy(ife=>ife.Location)
+                .Select(ife=>new ItemForReportingDTO(ife.Id, ife.Item.Name, ife.Location, ife.Item.Description, ife.Item.TypeItem.Name))
                 .ToListAsync();
-            return Ok(items);
+            return Ok(IFEs);
         }
 
     }
