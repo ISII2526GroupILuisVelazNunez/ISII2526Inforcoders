@@ -39,21 +39,18 @@ namespace AppForSEII2526.API.Controllers
         [HttpGet]
         [Route("[action]")]
         [ProducesResponseType(typeof(IList<ClassForPlanDTO>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult> GetClassesForPlan(string? name, decimal? price) {
+        public async Task<ActionResult> GetClassesForPlan(string? name, DateTime? date) {
             IList<ClassForPlanDTO> classesDTOS = await _context.Classes
+                .Include(i => i.TypeItems)
                 .Where(i =>
-                    // Only name specified, all items with that name
-                    (name != null && price == null && i.Name == name) ||
-                    // Only price specified, all items with price less than or equal to that
-                    (name == null && price != null && i.Price <= price) ||
-                    // Both name and price specified, all items with that name and price less than or equal to that
-                    (name != null && price != null && i.Name == name && i.Price <= price) ||
-                    // Neither name nor price specified, all items
-                    (name == null && price == null)
+                    (string.IsNullOrEmpty(name) || i.Name.Contains(name)) &&
+                    (
+                        (date == null && i.Date.Date >= DateTime.Today) ||
+                        (date != null && i.Date.Date == date.Value.Date)
+                    )
                 )
-                // Ordering by Name Descending. There is also OrderBy, OrderByAscending, ThenBy, ThenByDescending
                 .OrderByDescending(i => i.Name)
-                .Select(i => new ClassForPlanDTO(i.Id, i.Name, i.Price, i.TypeItems, i.Date))
+                .Select(i => new ClassForPlanDTO(i.Id, i.Name, i.Price, (IList<string>)i.TypeItems, i.Date))
                 .ToListAsync();
             return Ok(classesDTOS);
         }
