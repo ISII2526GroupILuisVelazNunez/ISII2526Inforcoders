@@ -5,25 +5,15 @@
         public int Id { get; set; }
         public string Location { get; set; }
         public string Type { get; set; }
-
-        /*
         public string Name { get; set; }
         public string Description { get; set; }
 
-        public ItemForReportingDTO(int id, string name, string location, string description, string type)
+        public ItemForReportingDTO(int id, string name, string location, string description, string typeName)
         {
             Id = id;
             Name = name;
             Location = location;
             Description = description;
-            Type = type;
-        }
-        */
-
-        public ItemForReportingDTO(int id, string location, string typeName)
-        {
-            Id = id;
-            Location = location;
             Type = typeName;
         }
     }
