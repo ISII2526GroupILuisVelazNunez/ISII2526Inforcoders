@@ -40,17 +40,21 @@ namespace AppForSEII2526.API.Controllers
         [Route("[action]")]
         [ProducesResponseType(typeof(IList<ClassForPlanDTO>), (int)HttpStatusCode.OK)]
         public async Task<ActionResult> GetClassesForPlan(string? name, DateTime? date) {
+            DateTime referenceDate = date ?? DateTime.Now;
             IList<ClassForPlanDTO> classesDTOS = await _context.Classes
                 .Include(i => i.TypeItems)
                 .Where(i =>
                     (string.IsNullOrEmpty(name) || i.Name.Contains(name)) &&
-                    (
-                        (date == null && i.Date.Date >= DateTime.Today) ||
-                        (date != null && i.Date.Date == date.Value.Date)
-                    )
+                    i.Date >= referenceDate
                 )
-                .OrderByDescending(i => i.Name)
-                .Select(i => new ClassForPlanDTO(i.Id, i.Name, i.Price, (IList<string>)i.TypeItems, i.Date))
+                .OrderBy(i => i.Id)
+                .Select(i => new ClassForPlanDTO(
+                    i.Id,
+                    i.Name,
+                    i.Price,
+                    i.TypeItems.Select(t => t.Name).ToList(),
+                    i.Date
+                ))
                 .ToListAsync();
             return Ok(classesDTOS);
         }
