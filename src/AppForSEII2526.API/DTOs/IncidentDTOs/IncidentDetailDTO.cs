@@ -2,8 +2,8 @@
 {
     public class IncidentDetailDTO : IncidentForCreateDTO
     {
-        public IncidentDetailDTO(int id, IList<IncidentItemDTO> incidentItems, IncidentState incidentState, 
-            string title, DateTime dateOfIdentification, string exercise, string reporterName) 
+        public IncidentDetailDTO(int id, IncidentState incidentState, 
+            string title, DateTime dateOfIdentification, string exercise, string reporterName, IList<IncidentItemDTO> incidentItems) 
             : base(incidentItems, incidentState, title, dateOfIdentification, exercise, reporterName)
         {
             Id = id;
