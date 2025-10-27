@@ -2,7 +2,7 @@
 {
     public class ClassForPlanDTO
     {
-        public ClassForPlanDTO(int id, string name, decimal price, IList<TypeItem> typeItems, DateTime date)
+        public ClassForPlanDTO(int id, string name, decimal price, IList<string> typeItems, DateTime date)
         {
             Id = id;
             Name = name;
@@ -20,7 +20,7 @@
 
         [Precision(9, 2)]
         public decimal Price { get; set; }
-        public IList<TypeItem> TypeItems { get; set; }
+        public IList<string> TypeItems { get; set; }
         public DateTime Date { get; set; }
     }
 }
