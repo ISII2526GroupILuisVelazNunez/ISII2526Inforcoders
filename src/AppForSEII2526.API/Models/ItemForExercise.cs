@@ -2,6 +2,13 @@
 {
     public class ItemForExercise
     {
+        public ItemForExercise() { }
+        public ItemForExercise(string location, Item item)
+        {
+            Location = location;
+            Item = item;
+        }
+
         public int Id { get; set; }
         public string Location { get; set; }
         public Item Item { get; set; }
