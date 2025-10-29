@@ -17,6 +17,14 @@
             Type = typeName;
         }
 
+        public ItemForReportingDTO(string name, string location, string description, string typeName)
+        {
+            Name = name;
+            Location = location;
+            Description = description;
+            Type = typeName;
+        }
+
         public override bool Equals(object? obj)
         {
             return obj is ItemForReportingDTO dTO &&
