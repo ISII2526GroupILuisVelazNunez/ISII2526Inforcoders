@@ -16,5 +16,15 @@
             Description = description;
             Type = typeName;
         }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is ItemForReportingDTO dTO &&
+                   Id == dTO.Id &&
+                   Location == dTO.Location &&
+                   Type == dTO.Type &&
+                   Name == dTO.Name &&
+                   Description == dTO.Description;
+        }
     }
 }
