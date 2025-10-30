@@ -36,20 +36,24 @@ namespace AppForSEII2526.UT.ItemsController_test
                 new ItemForExercise("Barcelona", Items[1]),
             };
 
+            /*
             _context.Add(TypeItems);
             _context.Add(Brands);
             _context.Add(Items);
-            _context.Add(IFEs);
+            */
+            _context.AddRange(IFEs);
+            _context.SaveChanges();
         }
 
         [Fact]
+        [Trait("LevelTesting", "Unit Testing")]
         public async Task GetItemsForReporting_null_name_location()
         {
             //arrange
             var ExpectedIFEs = new List<ItemForReportingDTO>()
             {
-                new ItemForReportingDTO("AAAAA", "Albacete", "A description", "Type A"),
-                new ItemForReportingDTO("BBBBB", "Barcelona", "Basically another description", "Type B"),
+                new ItemForReportingDTO(1, "AAAAA", "Albacete", "A description", "Type A"),
+                new ItemForReportingDTO(2, "BBBBB", "Barcelona", "Basically another description", "Type B"),
             };
 
             var controller = new ItemsController(_context, null);
