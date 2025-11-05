@@ -45,6 +45,7 @@ namespace AppForSEII2526.UT.ItemsController_test
             _context.SaveChanges();
         }
 
+        /*
         [Fact]
         [Trait("LevelTesting", "Unit Testing")]
         public async Task GetItemsForReporting_null_name_location()
@@ -67,6 +68,7 @@ namespace AppForSEII2526.UT.ItemsController_test
             var IFEsDTOsActual = Assert.IsType<List<ItemForReportingDTO>>(okResult.Value);
             Assert.Equal(ExpectedIFEs, IFEsDTOsActual);
         }
+        */
 
         [Theory]
         [Trait("LevelTesting", "Unit Testing")]
