@@ -14,6 +14,9 @@
         public IncidentState IncidentState { get; set;}
         public ApplicationUser User { get; set; }
 
+        public Incident() { }
+
+
         public Incident(int id, string title, string description, string exercise, DateTime dateOfIdentification)
         {
             Id = id;
@@ -21,6 +24,17 @@
             Description = description;
             Exercise = exercise;
             DateOfIdentification = dateOfIdentification;
+        }
+
+        public Incident(string title, string? description, string exercise, DateTime dateOfIdentification, IList<IncidentItem> incidentItems, IncidentState incidentState, ApplicationUser user)
+        {
+            Title = title;
+            Description = description;
+            Exercise = exercise;
+            DateOfIdentification = dateOfIdentification;
+            IncidentItems = incidentItems;
+            IncidentState = incidentState;
+            User = user;
         }
 
         public override bool Equals(object? obj)
