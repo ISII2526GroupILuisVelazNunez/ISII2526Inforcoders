@@ -4,6 +4,12 @@
     public class TypeItem
     {
         public TypeItem() { }
+        public TypeItem(string name, IList<Item> items)
+        {
+            Name = name;
+            Items = items;
+        }
+
         public TypeItem(string name)
         {
             Name = name;

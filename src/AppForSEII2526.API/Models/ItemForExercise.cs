@@ -3,6 +3,13 @@
     public class ItemForExercise
     {
         public ItemForExercise() { }
+        public ItemForExercise(string location, Item item, IList<IncidentItem> incidentItems)
+        {
+            Location = location;
+            Item = item;
+            IncidentItems = incidentItems;
+        }
+
         public ItemForExercise(string location, Item item)
         {
             Location = location;

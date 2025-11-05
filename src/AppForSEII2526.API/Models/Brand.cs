@@ -3,6 +3,12 @@
     public class Brand
     {
         public Brand() { }
+        public Brand(string name, IList<Item> items)
+        {
+            Name = name;
+            Items = items;
+        }
+
         public Brand(string name)
         {
             Name = name;
