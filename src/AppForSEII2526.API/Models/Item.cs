@@ -2,6 +2,21 @@
 {
     public class Item
     {
+        public Item() { }
+
+        public Item(string description, string name, decimal purchasePrice, int quantityAvailableForPurchase, int quantityForRestock, IList<PurchaseItem> purchaseItems, TypeItem typeItem, Brand brand, decimal? restockPrice)
+        {
+            Description = description;
+            Name = name;
+            PurchasePrice = purchasePrice;
+            QuantityAvailableForPurchase = quantityAvailableForPurchase;
+            QuantityForRestock = quantityForRestock;
+            PurchaseItems = purchaseItems;
+            TypeItem = typeItem;
+            Brand = brand;
+            RestockPrice = restockPrice;
+        }
+
         public int Id { get; set; }
         [StringLength(70, ErrorMessage = "The description of the Item can be neither longer than 30 characters nor shorter than 1",
         MinimumLength = 1)]

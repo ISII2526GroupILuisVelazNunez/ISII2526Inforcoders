@@ -9,10 +9,12 @@
         public ItemForExercise ItemForExercise { get; set; }
         public IncidentPriority IncidentPriority { get; set; }
         public IncidentItem() { }
-        public IncidentItem(int incidentId, int itemId) 
+        public IncidentItem(Incident incident, ItemForExercise ife) 
         {
-            IncidentId = incidentId;
-            ItemForExerciseId = itemId;
+            Incident = incident;
+            ItemForExercise = ife;
+            IncidentId = incident.Id;
+            ItemForExerciseId = ife.Id;
         }
 
         public override bool Equals(object? obj)
