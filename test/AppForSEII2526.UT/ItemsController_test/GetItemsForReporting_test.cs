@@ -67,5 +67,45 @@ namespace AppForSEII2526.UT.ItemsController_test
             var IFEsDTOsActual = Assert.IsType<List<ItemForReportingDTO>>(okResult.Value);
             Assert.Equal(ExpectedIFEs, IFEsDTOsActual);
         }
+
+        [Theory]
+        [Trait("LevelTesting", "Unit Testing")]
+        [MemberData(nameof(TestCasesFor_GetItemsForReporting))]
+        public async Task GetItemsForReporting_filtertest(string itemName, string itemLocation,
+            List<ItemForReportingDTO> ExpectedIFEs)
+        {
+            var controller = new ItemsController(_context, null);
+
+            var result = await controller.GetItemsForReporting(itemName, itemLocation);
+
+            //assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var IFEsDTOsActual = Assert.IsType<List<ItemForReportingDTO>>(okResult.Value);
+            Assert.Equal(ExpectedIFEs, IFEsDTOsActual);
+        }
+
+        public static IEnumerable<object[]> TestCasesFor_GetItemsForReporting()
+        {
+            var IFEs = new List<ItemForReportingDTO>()
+            {
+                new ItemForReportingDTO(1, "AAAAA", "Albacete", "A description", "Type A"),
+                new ItemForReportingDTO(2, "BBBBB", "Barcelona", "Basically another description", "Type B"),
+            };
+
+            var TC1_null_null = new List<ItemForReportingDTO> { IFEs[0], IFEs[1] };
+            var TC2_with_name = new List<ItemForReportingDTO> { IFEs[0]};
+            var TC3_with_location = new List<ItemForReportingDTO> { IFEs[1] };
+            var TC4_test_contains_condition = new List<ItemForReportingDTO> { IFEs[0], IFEs[1] };
+
+            var allTests = new List<object[]>
+            {
+                new object[]{null, null, TC1_null_null},
+                new object[]{"AAAAA", null, TC2_with_name},
+                new object[]{null, "Barcelona", TC3_with_location},
+                new object[]{null, "a", TC4_test_contains_condition},
+            };
+
+            return allTests;
+        }
     }
 }
