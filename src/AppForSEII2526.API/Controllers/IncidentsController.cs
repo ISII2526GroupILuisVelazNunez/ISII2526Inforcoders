@@ -9,9 +9,9 @@ namespace AppForSEII2526.API.Controllers
     public class IncidentsController : ControllerBase
     {
         private ApplicationDbContext _context;
-        private ILogger<ItemsController> _logger;
+        private ILogger<IncidentsController> _logger;
 
-        public IncidentsController(ApplicationDbContext context, ILogger<ItemsController> logger)
+        public IncidentsController(ApplicationDbContext context, ILogger<IncidentsController> logger)
         {
             _context = context;
             _logger = logger;
