@@ -4,9 +4,9 @@
 name: Continous Integration fired when a pull request is done to development
 
 on:
-#  push:
-#    branches: 
-#      - development
+  push:
+    branches: 
+      - JorgeRamirez-CI-CD
 # for considering only those changes affecting to a specific folder
 #    paths:
 #      - 'src/AppForMovies.API**'
@@ -27,8 +27,7 @@ jobs:
     steps:
       - name: Check out repository code just branch development
         uses: actions/checkout@v4
-        with:
-            ref: 'development'
+
 
       - name: Set up .NET
         uses: actions/setup-dotnet@v4
