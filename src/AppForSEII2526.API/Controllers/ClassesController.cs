@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AppForSEII2526.API.DTOs.ClassDTOs;
+using AppForSEII2526.API.DTOs.PlanDTOs;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using Microsoft.EntityFrameworkCore.Query.Internal;
-using AppForSEII2526.API.DTOs.ClassDTOs;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using System;
+using System.Security.Claims;
 
 namespace AppForSEII2526.API.Controllers
 {
@@ -58,5 +60,59 @@ namespace AppForSEII2526.API.Controllers
                 .ToListAsync();
             return Ok(classesDTOS);
         }
+
+
+
+
+        [HttpGet]
+        [Route("[action]")] // http url looks like this: api/Classes/GetPlan?id=5
+        [ProducesResponseType(typeof(PlanForDetailDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult> GetPlan(int id)
+        {  
+            PlanForDetailDTO? plan = await _context.Plans
+
+                .Where(p => p.Id == id) 
+                .Include(p => p.PlanItems)
+                    .ThenInclude(pi => pi.Class)
+                        .ThenInclude(c => c.TypeItems) // names of the types
+                .Include(p => p.PaymentMethod.User) // getting name and surname
+                .Select(p => new PlanForDetailDTO
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Description = p.Description,
+                    Weeks = p.Weeks,
+                    HealthIssues = p.HealthIssues,
+                    TotalPrice = p.TotalPrice,
+                    CreatedDate = p.CreatedDate,
+                    UserFullName = p.PaymentMethod.User.Name + " " + p.PaymentMethod.User.Surname,
+                    PlanItems = p.PlanItems.Select(pi => new PlanItemForDetailDTO
+                    {
+                        ClassId = pi.ClassId,
+                        Name = pi.Class.Name,
+                        Type = pi.Class.TypeItems.Select(t => t.Name).ToList(),
+                        Price = pi.Price, // using the price stored in planitem
+                        Date = pi.Class.Date,
+                        Goal = pi.Goal
+                    }).ToList()
+                })
+                .FirstOrDefaultAsync(); // getting the first or null
+
+
+            if (plan == null)
+            {
+                // Mensaje de log igual que en GetRental
+                _logger.LogWarning($"Warning: Plan with id {id} was not found.");
+                return NotFound();
+            }
+
+            // Devolver el plan
+            return Ok(plan);
+        }
+
+
+
+
     }
 }
