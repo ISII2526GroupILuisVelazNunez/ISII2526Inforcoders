@@ -15,7 +15,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Purchase> Purchases { get; set; }
     public DbSet<PurchaseItem> PurchaseItems { get; set; }
     
-    public DbSet<Class> Classes { get; set; }
+    public DbSet<SeedData> Classes { get; set; }
     public DbSet<Plan> Plans { get; set; }
     public DbSet<PlanItem> PlanItems { get; set; }
     public DbSet<Incident> Incidents { get; set; }
