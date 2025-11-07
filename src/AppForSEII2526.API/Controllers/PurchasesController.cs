@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
+using AppForSEII2526.API.DTOs.PurchaseDTOs;
 namespace AppForSEII2526.API.Controllers
 {
     [Route("api/[controller]")]
@@ -21,7 +21,7 @@ namespace AppForSEII2526.API.Controllers
 
         [ProducesResponseType(typeof(ValidationProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.Conflict)]
-        [ProducesResponseType(typeof(PurchaseForDetailDTO), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(PurchaseDetailDTO), (int)HttpStatusCode.Created)]
 
         public async Task<ActionResult> CreatePurchase(PurchaseForCreateDTO purchaseForCreate)
         {
@@ -45,22 +45,11 @@ namespace AppForSEII2526.API.Controllers
             //    ModelState.AddModelError("RentalApplicationUser", "Error! UserName is not registered");
 
             //we must check that all the items to be purchased exist in the database
-            var itemNames = purchaseForCreate.PurchaseItems.Select(pi => pi.Name).ToList<string>();
+            var itemNames = purchaseForCreate.PurchaseItems.Select(pi => pi.Item.Name).ToList<string>();
 
-            var items = _context.Items.Include(i => i.PurchaseItems)
-                .ThenInclude(pi => pi.Purchase)
-
-                //we must check that all the items to be purchased exist in the database
+            var items = await _context.Items
                 .Where(i => itemNames.Contains(i.Name))
-
-                //we use an anonymous type https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/types/anonymous-types
-                .Select(i => new {
-                    i.Id,
-                    i.Name,
-                    i.QuantityAvailableForPurchase,
-                    i.PurchasePrice
-                })
-                .ToList();
+                .ToListAsync();
 
             //we must provide purchase with the info to be saved in the database
             Purchase purchase = new Purchase(purchaseForCreate.Id, purchaseForCreate.City,
@@ -72,11 +61,11 @@ namespace AppForSEII2526.API.Controllers
 
             foreach (var reqItem in purchaseForCreate.PurchaseItems)
             {
-                var dbItem = items.FirstOrDefault(i => i.Name == reqItem.Name);
+                var dbItem = items.FirstOrDefault(i => i.Name == reqItem.Item.Name);
                 //we must check that there is enough quantity to be rented in the database
                 if (dbItem == null)
                 {
-                    ModelState.AddModelError("PurchaseItems", $"Error! Item '{reqItem.Name}' does not exist.");
+                    ModelState.AddModelError("PurchaseItems", $"Error! Item '{reqItem.Item.Name}' does not exist.");
                 }
 
                 if (reqItem.Quantity > dbItem.QuantityAvailableForPurchase)
@@ -87,9 +76,35 @@ namespace AppForSEII2526.API.Controllers
 
                 else //TODO
                 {
-                    // purchase does not exist in the database yet and does not have a valid Id, so we must relate purchaseitem to the object purchase
-                    
+                    // Add valid item to purchase
+                    var purchaseItem = new PurchaseItem(
+                        dbItem.Id,
+                        dbItem,
+                        reqItem.Quantity,
+                        reqItem.Quantity,
+                        dbItem.PurchasePrice,
+                        purchase,
+                        0 //temporary ID??
+                    );
+                    purchase.PurchaseItems.Add(purchaseItem);
+
+                    // Update item stock
+                    dbItem.QuantityAvailableForPurchase -= reqItem.Quantity;
+                    purchase.Total_price = purchase.PurchaseItems.Sum(pi => pi.Price * pi.Quantity);
                 }
+                // Validation and save
+                if (ModelState.ErrorCount > 0)
+                    return BadRequest(new ValidationProblemDetails(ModelState));
+
+                _context.Add(purchase);
+                await _context.SaveChangesAsync();
+
+                // Prepare return DTO
+                var purchaseDetail = new PurchaseDetailDTO(purchase.Id, purchase.PaymentMethod,
+                purchase.Street, purchase.City, purchase.Country, purchase.Description,
+                purchase.PurchaseItems, purchase.Total_price);
+
+                return CreatedAtAction("GetPurchase", new { id = purchase.Id }, purchaseDetail);
             }
         }
     }
