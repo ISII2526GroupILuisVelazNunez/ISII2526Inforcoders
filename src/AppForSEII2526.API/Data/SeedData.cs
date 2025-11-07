@@ -56,9 +56,7 @@ namespace AppForSEII2526.API.Data
     {
         var user = new ApplicationUser(
             "Elena",
-            "Navarro Martínez",
-            new List<PaymentMethod>(),
-            new List<Incident>()
+            "Navarro Martínez"
         )
         {
             UserName = "elena@uclm.es",
@@ -95,9 +93,7 @@ namespace AppForSEII2526.API.Data
     {
         var user = new ApplicationUser(
             "Gregorio",
-            "Diaz Descalzo",
-            new List<PaymentMethod>(),
-            new List<Incident>()
+            "Diaz Descalzo"
         )
         {
             UserName = "gregorio@uclm.es",
@@ -125,9 +121,7 @@ namespace AppForSEII2526.API.Data
     {
         var user = new ApplicationUser(
             "Peter",
-            "Jackson",
-            new List<PaymentMethod>(),
-            new List<Incident>()
+            "Jackson"
         )
         {
             UserName = "peter@uclm.es",
