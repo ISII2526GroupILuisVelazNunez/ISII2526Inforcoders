@@ -50,56 +50,107 @@ namespace AppForSEII2526.API.Data
         }
 
         public static void SeedUsers(UserManager<ApplicationUser> userManager, List<string> roles)
+{
+    // Administrator
+    if (userManager.FindByNameAsync("elena@uclm.es").Result == null)
+    {
+        var user = new ApplicationUser(
+            "Elena",
+            "Navarro Martínez",
+            new List<PaymentMethod>(),
+            new List<Incident>()
+        )
         {
-            //first, it checks the user does not already exist in the DB
-            if (userManager.FindByNameAsync("elena@uclm.es").Result == null)
-            {
-                ApplicationUser user = new ApplicationUser("1", "Elena", "Navarro Martínez", "elena@uclm.es", "Avda. España 2, Albacete");
-                user.EmailConfirmed = true;
+            UserName = "elena@uclm.es",
+            Email = "elena@uclm.es",
+            EmailConfirmed = true
+        };
 
-                var result = userManager.CreateAsync(user, "Password1234%");
-                result.Wait();
+        // Create PaymentMethods
+        var cc = new CreditCard
+        {
+            CreditCardNumber = 4111222233334444,
+            ExpirationDate = new DateTime(2028, 12, 31),
+            User = user
+        };
 
-                if (result.IsCompletedSuccessfully)
-                {
-                    //administrator role
-                    userManager.AddToRoleAsync(user, roles[0]).Wait();
-                }
-            }
+        var paypal = new PayPal
+        {
+            Email = "elena.paypal@uclm.es",
+            User = user
+        };
 
-            if (userManager.FindByNameAsync("gregorio@uclm.es").Result == null)
-            {
-                ApplicationUser user = new ApplicationUser("2", "Gregorio", "Diaz Descalzo", "gregorio@uclm.es", "Avda. España 25, Ciudad Real");
-                user.EmailConfirmed = true;
+        user.PaymentMethods.Add(cc);
+        user.PaymentMethods.Add(paypal);
 
-                var result = userManager.CreateAsync(user, "APassword1234%");
-                result.Wait();
-
-                if (result.IsCompletedSuccessfully)
-                {
-                    //employee role
-                    userManager.AddToRoleAsync(user, roles[1]).Wait();
-                }
-            }
-
-            if (userManager.FindByNameAsync("peter@uclm.es").Result == null)
-            {
-                //A customer class has been defined because it has different attributes (purchase, rental, etc.)
-                ApplicationUser user = new ApplicationUser("3", "Peter", "Jackson", "peter@uclm.es", "Avda. España 75, London");
-                user.EmailConfirmed = true;
-
-                var result = userManager.CreateAsync(user, "OtherPass12$");
-
-                result.Wait();
-
-                if (result.IsCompletedSuccessfully)
-                {
-                    //customer role
-                    userManager.AddToRoleAsync(user, roles[2]).Wait();
-
-                }
-            }
-
+        var result = userManager.CreateAsync(user, "Password1234%").Result;
+        if (result.Succeeded)
+        {
+            userManager.AddToRoleAsync(user, roles[0]).Wait();
         }
+    }
+
+    // Employee
+    if (userManager.FindByNameAsync("gregorio@uclm.es").Result == null)
+    {
+        var user = new ApplicationUser(
+            "Gregorio",
+            "Diaz Descalzo",
+            new List<PaymentMethod>(),
+            new List<Incident>()
+        )
+        {
+            UserName = "gregorio@uclm.es",
+            Email = "gregorio@uclm.es",
+            EmailConfirmed = true
+        };
+
+        var bizum = new Bizum
+        {
+            TelephoneNumber = 612345678,
+            User = user
+        };
+
+        user.PaymentMethods.Add(bizum);
+
+        var result = userManager.CreateAsync(user, "APassword1234%").Result;
+        if (result.Succeeded)
+        {
+            userManager.AddToRoleAsync(user, roles[1]).Wait();
+        }
+    }
+
+    // Customer
+    if (userManager.FindByNameAsync("peter@uclm.es").Result == null)
+    {
+        var user = new ApplicationUser(
+            "Peter",
+            "Jackson",
+            new List<PaymentMethod>(),
+            new List<Incident>()
+        )
+        {
+            UserName = "peter@uclm.es",
+            Email = "peter@uclm.es",
+            EmailConfirmed = true
+        };
+
+        var cc = new CreditCard
+        {
+            CreditCardNumber = 5555666677778888,
+            ExpirationDate = new DateTime(2029, 6, 30),
+            User = user
+        };
+
+        user.PaymentMethods.Add(cc);
+
+        var result = userManager.CreateAsync(user, "OtherPass12$").Result;
+        if (result.Succeeded)
+        {
+            userManager.AddToRoleAsync(user, roles[2]).Wait();
+        }
+    }
+}
+
     }
 }
