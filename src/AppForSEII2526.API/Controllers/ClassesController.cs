@@ -68,130 +68,163 @@ namespace AppForSEII2526.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)] // for try-catch
         public async Task<ActionResult<PlanForDetailDTO>> CreatePlan([FromBody] PlanForCreateDTO planForCreateDTO)
         {
-            //alt flow 4 at least 1 item
-            if (planForCreateDTO.Items == null || !planForCreateDTO.Items.Any())
+            try
             {
-                return BadRequest("At least 1 class must be selected for the plan.");
-            }
-
-            // payment method existence check
-            var paymentMethod = await _context.PaymentMethods.FindAsync(planForCreateDTO.PaymentMethodId);
-            if (paymentMethod == null)
-            {
-                return NotFound($"Payment method with ID {planForCreateDTO.PaymentMethodId} was not found.");
-            }
-
-            // creating plan entity
-            var plan = new Plan
-            {
-                Name = planForCreateDTO.Name,
-                Description = planForCreateDTO.Description,
-                Weeks = planForCreateDTO.Weeks,
-                HealthIssues = planForCreateDTO.HealthIssues,
-                CreatedDate = DateTime.UtcNow, 
-                PaymentMethod = paymentMethod, 
-                PlanItems = new List<PlanItem>() 
-            };
-
-            decimal totalPrice = 0;
-
-            // processing each selected class
-            foreach (var itemDTO in planForCreateDTO.Items)
-            {
-                var classToEnroll = await _context.Classes.FindAsync(itemDTO.ClassId);
-
-                if (classToEnroll == null)
+                // at least one item
+                if (planForCreateDTO.Items == null || !planForCreateDTO.Items.Any())
                 {
-                    return NotFound($"Class with ID {itemDTO.ClassId} does not exist.");
+                    return BadRequest("At least 1 class must be selected for the plan.");
                 }
 
-                // checking capaticy
-                var currentEnrollments = await _context.PlanItems.CountAsync(pi => pi.ClassId == classToEnroll.Id);
-                if (currentEnrollments >= classToEnroll.Capacity)
+                // payment method needs to exist
+                var paymentMethod = await _context.PaymentMethods.FindAsync(planForCreateDTO.PaymentMethodId);
+                if (paymentMethod == null)
                 {
-                    return Conflict($"Class '{classToEnroll.Name}' does not have enough capacity. Choose another one.");
+                    return NotFound($"Payment method with ID {planForCreateDTO.PaymentMethodId} was not found.");
                 }
 
-                // price update
-                totalPrice += classToEnroll.Price;
-
-                // planitem entity creation
-                var planItem = new PlanItem
+                // creating plan entity
+                var plan = new Plan
                 {
-                    ClassId = classToEnroll.Id,
-                    Goal = itemDTO.Goal,
-                    Price = classToEnroll.Price
+                    Name = planForCreateDTO.Name,
+                    Description = planForCreateDTO.Description,
+                    Weeks = planForCreateDTO.Weeks,
+                    HealthIssues = planForCreateDTO.HealthIssues,
+                    CreatedDate = DateTime.UtcNow,
+                    PaymentMethod = paymentMethod,
+                    PlanItems = new List<PlanItem>()
                 };
 
-                plan.PlanItems.Add(planItem);
-            }
+                decimal totalPrice = 0;
 
-            // total price
-            plan.TotalPrice = totalPrice;
-
-            // ddbb save
-            _context.Plans.Add(plan);
-            await _context.SaveChangesAsync();
-
-            // response preparation
-            // loading the plan again
-            var savedPlan = await _context.Plans
-                // including payment method and user to get user name and surname later on
-                .Include(p => p.PaymentMethod)
-                    .ThenInclude(pm => pm.User)
-                // planitems and classes
-                .Include(p => p.PlanItems)
-                    .ThenInclude(pi => pi.Class)
-                        // typeitems for class type names
-                        .ThenInclude(c => c.TypeItems)
-                .FirstOrDefaultAsync(p => p.Id == plan.Id);
-
-            if (savedPlan == null)
-            {
-                return StatusCode(500, "Error saving the plan.");
-            }
-
-            // mapping plan to PlanForDetailDTO to get details in response
-            var planDetailDTO = new PlanForDetailDTO
-            {
-                // planfordetaildto properties
-                Id = savedPlan.Id,
-                Name = savedPlan.Name,
-                Description = savedPlan.Description,
-                Weeks = savedPlan.Weeks,
-                HealthIssues = savedPlan.HealthIssues,
-                TotalPrice = savedPlan.TotalPrice,
-                CreatedDate = savedPlan.CreatedDate,
-
-                UserFullName = $"{savedPlan.PaymentMethod?.User?.Name} {savedPlan.PaymentMethod?.User?.Surname}".Trim(),
-
-                PlanItems = savedPlan.PlanItems.Select(pi => new PlanItemForDetailDTO
+                // process each selected class
+                foreach (var itemDTO in planForCreateDTO.Items)
                 {
-                    // planitemfordetaildto properties
-                    ClassId = pi.ClassId,
-                    Name = pi.Class.Name,
+                    var classToEnroll = await _context.Classes.FindAsync(itemDTO.ClassId);
 
-                    
-                    Type = pi.Class.TypeItems.Select(t => t.Name).ToList(),
+                    if (classToEnroll == null)
+                    {
+                        return NotFound($"Class with ID {itemDTO.ClassId} does not exist.");
+                    }
 
-                    
-                    Price = pi.Price,
+                    // validate capacity
+                    var currentEnrollments = await _context.PlanItems.CountAsync(pi => pi.ClassId == classToEnroll.Id);
+                    if (currentEnrollments >= classToEnroll.Capacity)
+                    {
+                        return Conflict($"Class '{classToEnroll.Name}' does not have enough capacity. Please modify your selection.");
+                    }
 
-                    
-                    Date = pi.Class.Date,
+                    // add price each class
+                    totalPrice += classToEnroll.Price;
 
-                    Goal = pi.Goal
+                    // create PlanItem entity
+                    var planItem = new PlanItem
+                    {
+                        ClassId = classToEnroll.Id,
+                        Goal = itemDTO.Goal, 
+                        Price = classToEnroll.Price // storing price at the time of purchase
+                    };
 
-                }).ToList()
-            };
+                    plan.PlanItems.Add(planItem);
+                }
 
-            // response, 201, and details of the created plan
-            return CreatedAtAction(nameof(GetPlan), new { id = plan.Id }, planDetailDTO);
+                // total price calculation
+                plan.TotalPrice = totalPrice;
+
+                // saving to db
+                _context.Plans.Add(plan);
+                await _context.SaveChangesAsync();
+
+                // response preparation
+                // reload the plan with all required navigation properties
+                var savedPlan = await _context.Plans
+                    .Include(p => p.PaymentMethod)
+                        .ThenInclude(pm => pm.User) // for UserFullName
+                    .Include(p => p.PlanItems)
+                        .ThenInclude(pi => pi.Class)
+                            .ThenInclude(c => c.TypeItems) // for class type names
+                    .FirstOrDefaultAsync(p => p.Id == plan.Id);
+
+                if (savedPlan == null)
+                {
+                    // should not happen, but it's a critical server error if it does
+                    _logger.LogError("The plan was saved (ID: {PlanId}) but could not be reloaded from the DB.", plan.Id);
+                    return StatusCode(500, "Error processing the plan after saving.");
+                }
+
+                // Map the entity to the PlanForDetailDTO
+                var planDetailDTO = new PlanForDetailDTO
+                {
+                    Id = savedPlan.Id,
+                    Name = savedPlan.Name,
+                    Description = savedPlan.Description,
+                    Weeks = savedPlan.Weeks,
+                    HealthIssues = savedPlan.HealthIssues,
+                    TotalPrice = savedPlan.TotalPrice,
+                    CreatedDate = savedPlan.CreatedDate,
+                    UserFullName = $"{savedPlan.PaymentMethod?.User?.Name} {savedPlan.PaymentMethod?.User?.Surname}".Trim(),
+                    PlanItems = savedPlan.PlanItems.Select(pi => new PlanItemForDetailDTO
+                    {
+                        ClassId = pi.ClassId,
+                        Name = pi.Class.Name,
+                        Type = pi.Class.TypeItems.Select(t => t.Name).ToList(),
+                        Price = pi.Price, // using the price stored in PlanItem
+                        Date = pi.Class.Date,
+                        Goal = pi.Goal
+                    }).ToList()
+                };
+
+                // returning 201 created with the plan details
+                return CreatedAtAction(nameof(GetPlan), new { id = plan.Id }, planDetailDTO);
+            }
+            // database-specific save errors
+            catch (DbUpdateException ex)
+            {
+                string error = "An error occurred while saving to the database.";
+
+                // specific SQL error if available
+                if (ex.InnerException != null)
+                {
+                    error = ex.InnerException.Message;
+                }
+
+                _logger.LogError(ex, "DbUpdateException in CreatePlan: {ErrorMessage}", error);
+
+                // returning 500 here
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error while saving: {error}");
+            }
+            // all other unexpected errors
+            catch (Exception ex)
+            {
+                string error = "An unexpected error occurred on the server.";
+                _logger.LogError(ex, "Unexpected error in CreatePlan: {ErrorMessage}", ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, error);
+            }
         }
 
-
+        /*
+         * test json for the post method
+         * {
+              "paymentMethodId": 1,
+              "name": "test plan1",
+              "description": "Mi plan con varias clases",
+              "weeks": 4,
+              "healthIssues": "Ninguno",
+              "items": [
+                {
+                  "classId": 1,
+                  "goal": "Probar Yoga"
+                },
+                {
+                  "classId": 2,
+                  "goal": "Mejorar cardio en Spinning"
+                }
+              ]
+            }
+         */
 
 
 

@@ -6,7 +6,7 @@
         public int PaymentMethodId { get; set; }
 
         [Required(ErrorMessage = "Plan name is required.")]
-        [StringLength(30, MinimumLength = 3, ErrorMessage = "Plan name must have between 3 and 30 characters.")]
+        [StringLength(20, MinimumLength = 1, ErrorMessage = "Plan name must have between 1 and 20 characters.")]
         public string Name { get; set; } = string.Empty;
 
         public string? Description { get; set; }
