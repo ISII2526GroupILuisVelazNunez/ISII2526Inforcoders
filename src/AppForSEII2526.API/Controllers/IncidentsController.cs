@@ -52,8 +52,44 @@ namespace AppForSEII2526.API.Controllers
                 return NotFound();
             }
 
-
             return Ok(Incident);
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        [ProducesResponseType(typeof(IncidentDetailDTO), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Conflict)]
+        public async Task<ActionResult> CreateIncident(IncidentForCreateDTO incidentForCreate)
+        {
+            if (incidentForCreate.IncidentItems.Count == 0)
+                ModelState.AddModelError("IncidentItems","Error: you must select at least one item to report!");
+
+            if (incidentForCreate.DateOfIdentification >= DateTime.Now)
+                ModelState.AddModelError("DateOfIdentification", "Error: the date of identification can't be in the future!");
+
+            /*
+            var user = _context.ApplicationUsers.FirstOrDefault(au => au.Name == incidentForCreate.reporterName);
+            if (user == null)
+                ModelState.AddModelError("IncidentApplicationUser", "Error! Name is not registered");
+            */
+
+            if (ModelState.ErrorCount > 0)
+                return BadRequest(new ValidationProblemDetails(ModelState));
+
+            var ifeLocations = incidentForCreate.IncidentItems.Select(ii => ii.Location).ToList<string>();
+
+            var IFEs = _context.ItemsForExercise.Include(ife => ife.IncidentItems)
+                .ThenInclude(ii => ii.Incident)
+                .Where(ife => ifeLocations.Contains(ife.Location))
+                .Select(ife => new {
+                    ife.Id, ife.Location, NumberOfItems = ife.IncidentItems.Count
+                })
+
+                .ToList();
+
+
+            // Incident incident = new Incident()
         }
     }
 }
