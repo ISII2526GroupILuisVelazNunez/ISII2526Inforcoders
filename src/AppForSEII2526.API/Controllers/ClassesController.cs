@@ -3,9 +3,8 @@ using AppForSEII2526.API.DTOs.PlanDTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore;
 using System;
-using System.Security.Claims;
 
 namespace AppForSEII2526.API.Controllers
 {
@@ -64,6 +63,146 @@ namespace AppForSEII2526.API.Controllers
 
 
 
+        [HttpPost("plans")]
+        [ProducesResponseType(typeof(PlanForDetailDTO), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<ActionResult<PlanForDetailDTO>> CreatePlan([FromBody] PlanForCreateDTO planForCreateDTO)
+        {
+            //alt flow 4 at least 1 item
+            if (planForCreateDTO.Items == null || !planForCreateDTO.Items.Any())
+            {
+                return BadRequest("At least 1 class must be selected for the plan.");
+            }
+
+            // payment method existence check
+            var paymentMethod = await _context.PaymentMethods.FindAsync(planForCreateDTO.PaymentMethodId);
+            if (paymentMethod == null)
+            {
+                return NotFound($"Payment method with ID {planForCreateDTO.PaymentMethodId} was not found.");
+            }
+
+            // creating plan entity
+            var plan = new Plan
+            {
+                Name = planForCreateDTO.Name,
+                Description = planForCreateDTO.Description,
+                Weeks = planForCreateDTO.Weeks,
+                HealthIssues = planForCreateDTO.HealthIssues,
+                CreatedDate = DateTime.UtcNow, 
+                PaymentMethod = paymentMethod, 
+                PlanItems = new List<PlanItem>() 
+            };
+
+            decimal totalPrice = 0;
+
+            // processing each selected class
+            foreach (var itemDTO in planForCreateDTO.Items)
+            {
+                var classToEnroll = await _context.Classes.FindAsync(itemDTO.ClassId);
+
+                if (classToEnroll == null)
+                {
+                    return NotFound($"Class with ID {itemDTO.ClassId} does not exist.");
+                }
+
+                // checking capaticy
+                var currentEnrollments = await _context.PlanItems.CountAsync(pi => pi.ClassId == classToEnroll.Id);
+                if (currentEnrollments >= classToEnroll.Capacity)
+                {
+                    return Conflict($"Class '{classToEnroll.Name}' does not have enough capacity. Choose another one.");
+                }
+
+                // price update
+                totalPrice += classToEnroll.Price;
+
+                // planitem entity creation
+                var planItem = new PlanItem
+                {
+                    ClassId = classToEnroll.Id,
+                    Goal = itemDTO.Goal,
+                    Price = classToEnroll.Price
+                };
+
+                plan.PlanItems.Add(planItem);
+            }
+
+            // total price
+            plan.TotalPrice = totalPrice;
+
+            // ddbb save
+            _context.Plans.Add(plan);
+            await _context.SaveChangesAsync();
+
+            // response preparation
+            // loading the plan again
+            var savedPlan = await _context.Plans
+                // including payment method and user to get user name and surname later on
+                .Include(p => p.PaymentMethod)
+                    .ThenInclude(pm => pm.User)
+                // planitems and classes
+                .Include(p => p.PlanItems)
+                    .ThenInclude(pi => pi.Class)
+                        // typeitems for class type names
+                        .ThenInclude(c => c.TypeItems)
+                .FirstOrDefaultAsync(p => p.Id == plan.Id);
+
+            if (savedPlan == null)
+            {
+                return StatusCode(500, "Error saving the plan.");
+            }
+
+            // mapping plan to PlanForDetailDTO to get details in response
+            var planDetailDTO = new PlanForDetailDTO
+            {
+                // planfordetaildto properties
+                Id = savedPlan.Id,
+                Name = savedPlan.Name,
+                Description = savedPlan.Description,
+                Weeks = savedPlan.Weeks,
+                HealthIssues = savedPlan.HealthIssues,
+                TotalPrice = savedPlan.TotalPrice,
+                CreatedDate = savedPlan.CreatedDate,
+
+                UserFullName = $"{savedPlan.PaymentMethod?.User?.Name} {savedPlan.PaymentMethod?.User?.Surname}".Trim(),
+
+                PlanItems = savedPlan.PlanItems.Select(pi => new PlanItemForDetailDTO
+                {
+                    // planitemfordetaildto properties
+                    ClassId = pi.ClassId,
+                    Name = pi.Class.Name,
+
+                    
+                    Type = pi.Class.TypeItems.Select(t => t.Name).ToList(),
+
+                    
+                    Price = pi.Price,
+
+                    
+                    Date = pi.Class.Date,
+
+                    Goal = pi.Goal
+
+                }).ToList()
+            };
+
+            // response, 201, and details of the created plan
+            return CreatedAtAction(nameof(GetPlan), new { id = plan.Id }, planDetailDTO);
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
         [HttpGet]
         [Route("[action]")] // http url looks like this: api/Classes/GetPlan?id=5
         [ProducesResponseType(typeof(PlanForDetailDTO), (int)HttpStatusCode.OK)]
@@ -102,12 +241,11 @@ namespace AppForSEII2526.API.Controllers
 
             if (plan == null)
             {
-                // Mensaje de log igual que en GetRental
                 _logger.LogWarning($"Warning: Plan with id {id} was not found.");
                 return NotFound();
             }
 
-            // Devolver el plan
+            // returning plan
             return Ok(plan);
         }
 
