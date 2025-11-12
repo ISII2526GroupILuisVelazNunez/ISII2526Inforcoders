@@ -32,15 +32,20 @@ namespace AppForSEII2526.API.Controllers
 
             var purchase = await _context.Purchases
                 .Where(p => p.Id == id)
-                .Include(p => p.PurchaseItems)          // join PurchaseItems
-                    .ThenInclude(pi => pi.Item)         // then join Items
+                .Include(p => p.PurchaseItems)
+                    .ThenInclude(pi => pi.Item)
+                        .ThenInclude(i => i.Brand)
+                .Include(p => p.PaymentMethod)
                 .Select(p => new PurchaseDetailDTO(
                     p.Id,
-                    p.PaymentMethod,
+                    new PaymentMethodForPurchaseDetailDTO(
+                        p.PaymentMethod.Id,
+                        p.PaymentMethod.GetType().Name
+                    ),
                     p.Street,
                     p.City,
                     p.Country,
-                    p.Description,         
+                    p.Description,
                     p.PurchaseItems
                         .Select(pi => new ItemForPurchaseDetailDTO(
                             pi.Item.Name,
@@ -61,6 +66,7 @@ namespace AppForSEII2526.API.Controllers
 
             return Ok(purchase);
         }
+
 
     }
 }

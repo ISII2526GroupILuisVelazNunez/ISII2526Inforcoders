@@ -4,7 +4,7 @@ namespace AppForSEII2526.API.DTOs.PurchaseDTOs
 {
     public class PurchaseDetailDTO
     {
-        public PurchaseDetailDTO(int id, PaymentMethod paymentMethod, string street, string city, string country, string? description, List<ItemForPurchaseDetailDTO> purchaseItems, decimal total_price)
+        public PurchaseDetailDTO(int id, PaymentMethodForPurchaseDetailDTO paymentMethod, string street, string city, string country, string? description, List<ItemForPurchaseDetailDTO> purchaseItems, decimal total_price)
         {
             Id = id;
             PaymentMethod = paymentMethod;
@@ -22,15 +22,18 @@ namespace AppForSEII2526.API.DTOs.PurchaseDTOs
         public decimal Total_price { get; set; }
         [StringLength(200, ErrorMessage = "Description must be shorter than 200 characters.")]
         public string? Description { get; set; }
-        public PaymentMethod PaymentMethod { get; set; }
+        public PaymentMethodForPurchaseDetailDTO PaymentMethod { get; set; }
+        [System.Text.Json.Serialization.JsonIgnore]
         [Required(AllowEmptyStrings = false, ErrorMessage = "Please, specify the street.")]
         public string Street { get; set; }
+        [System.Text.Json.Serialization.JsonIgnore]
         [Required(AllowEmptyStrings = false, ErrorMessage = "Please, specify the city.")]
         public string City { get; set; }
+        [System.Text.Json.Serialization.JsonIgnore]
         [Required(AllowEmptyStrings = false, ErrorMessage = "Please, specify the country.")]
         public string Country { get; set; }
         [Required]
-        List<ItemForPurchaseDetailDTO> PurchaseItems { get; set; }
+        public List<ItemForPurchaseDetailDTO> PurchaseItems { get; set; }
     }
 }
 
