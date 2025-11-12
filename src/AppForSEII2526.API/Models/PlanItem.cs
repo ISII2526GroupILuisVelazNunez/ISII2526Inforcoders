@@ -4,6 +4,19 @@
     nameof(PlanId))]
     public class PlanItem
     {
+        public PlanItem()
+        {
+    
+        }
+
+        public PlanItem(Plan plan, Class @class, string goal, decimal price)
+        {
+            Plan = plan;
+            Class = @class;
+            Goal = goal;
+            Price = price;
+        }
+
         public int ClassId { get; set; }
         public string? Goal { get; set; }
         public int PlanId { get; set; }

@@ -2,6 +2,16 @@
 {
     public abstract class PaymentMethod
     {
+        public PaymentMethod()
+        {
+
+        }
+
+        public PaymentMethod(IList<Plan>? plans, ApplicationUser? user) // ignore warnings
+        {
+            Plans = plans;
+            User = user;
+        }
         [Key]
         public int Id { get; set; }
         [Required]
