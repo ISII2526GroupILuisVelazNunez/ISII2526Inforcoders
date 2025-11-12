@@ -3,6 +3,29 @@
     [Index(nameof(Name), IsUnique = true)]
     public class Plan
     {
+        // ignore warnings on constructors
+        public Plan()
+        {
+            
+        }
+
+        public Plan(string name, string? description, DateTime createdDate, string? healthIssues, decimal totalPrice, int weeks, IList<PlanItem> planItems, PaymentMethod? paymentMethod)
+        {
+            PaymentMethod = paymentMethod;
+        }
+
+        public Plan(string name, string? description, DateTime createdDate, string? healthIssues, decimal totalPrice, int weeks, PaymentMethod? paymentMethod)
+        {
+            
+            Name = name;
+            Description = description;
+            CreatedDate = createdDate;
+            HealthIssues = healthIssues;
+            TotalPrice = totalPrice;
+            Weeks = weeks;
+            PaymentMethod = paymentMethod;
+        }
+
         public DateTime CreatedDate { get; set; }
         public string? Description { get; set; }
         public string? HealthIssues { get; set; }

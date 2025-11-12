@@ -3,6 +3,28 @@
     [Index(nameof(Name), IsUnique = true)]
     public class Class
     {
+        public Class()
+        {
+            // necessary, ignore warnings
+        }
+
+        
+        public Class(string name, DateTime date, int capacity, decimal price)
+        {
+            Name = name;
+            Date = date;
+            Capacity = capacity;
+            Price = price;
+        }
+
+        // custom constructor with typeItems for tests, calls previous constructor
+        public Class(string name, DateTime date, int capacity, decimal price, IList<TypeItem> typeItems)
+            : this(name, date, capacity, price) 
+        {
+            TypeItems = typeItems;
+        }
+
+
         public int Capacity { get; set; }
         public DateTime Date { get; set; }
         public int Id { get; set; }
