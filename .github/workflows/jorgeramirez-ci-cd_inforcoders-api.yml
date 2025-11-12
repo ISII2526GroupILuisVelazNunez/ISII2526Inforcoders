@@ -6,10 +6,10 @@ name: Build and deploy ASP.Net Core app to Azure Web App - inforcoders-api
 on:
   push:
     branches:
-      - JorgeRamirez-CI-CD
-#      - development
-#    paths:
-#      - 'src/AppForMovies.API**'
+#      - JorgeRamirez-CI-CD
+      - development
+    paths:
+      - 'src/AppForMovies.API**'
   workflow_dispatch:
 
 jobs:
@@ -82,3 +82,4 @@ jobs:
           package: .
 
           
+
