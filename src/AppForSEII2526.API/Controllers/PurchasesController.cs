@@ -155,7 +155,7 @@ namespace AppForSEII2526.API.Controllers
                 return BadRequest(new ValidationProblemDetails(ModelState));
 
             //total_price calculation
-            purchase.Total_price = purchase.PurchaseItems.Sum(pi => pi.Price * pi.Quantity);
+            purchase.Total_price = purchase.PurchaseItems.Sum(pi => pi.Price * pi.Amount_bought);
 
             //save
             _context.Purchases.Add(purchase);

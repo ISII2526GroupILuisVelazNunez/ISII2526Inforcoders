@@ -36,6 +36,7 @@ namespace AppForSEII2526.API.Models
             Date = date;
             Description = description;
             Street = street;
+            PurchaseItems = new List<PurchaseItem>();
         }
 
         public Purchase() { } // parameterless
