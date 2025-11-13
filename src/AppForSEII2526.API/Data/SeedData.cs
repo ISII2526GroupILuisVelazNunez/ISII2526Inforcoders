@@ -208,7 +208,7 @@ namespace AppForSEII2526.API.Data
                 new Item
                 {
                     Name = "Protein Shaker Bottle",
-                    Description = "BPA-free shaker bottle for protein shakes",
+                    Description = "Shaker bottle for protein shakes",
                     PurchasePrice = 12.50m,
                     QuantityAvailableForPurchase = 200,
                     QuantityForRestock = 50,
