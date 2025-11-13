@@ -28,8 +28,14 @@ namespace AppForSEII2526.API.Data
             {
                 logger.LogError(ex, "An error occurred seeding the Users in the Database.");
             }
-
-
+            try
+            {
+                SeedItems(dbContext);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred seeding the Items in the Database.");
+            }
         }
 
         public static void SeedRoles(RoleManager<IdentityRole> roleManager, List<string> roles)
@@ -146,5 +152,90 @@ namespace AppForSEII2526.API.Data
             }
         }
 
-    }
+        public static void SeedItems(ApplicationDbContext context)
+        {
+            if (context.Items.Any()) return;
+
+            // Brands
+            var brandNike = new Brand { Name = "Nike" };
+            var brandAdidas = new Brand { Name = "Adidas" };
+            var brandReebok = new Brand { Name = "Reebok" };
+
+            // Types
+            var typeEquipment = new TypeItem { Name = "Equipment" };
+            var typeAccessory = new TypeItem { Name = "Accessory" };
+            var typeApparel = new TypeItem { Name = "Apparel" };
+
+            // Items
+            var items = new List<Item>
+            {
+                new Item
+                {
+                    Name = "Yoga Mat",
+                    Description = "High-density, non-slip yoga mat",
+                    PurchasePrice = 25.99m,
+                    QuantityAvailableForPurchase = 100,
+                    QuantityForRestock = 20,
+                    TypeItem = typeAccessory,
+                    Brand = brandNike,
+                    RestockPrice = 20.00m,
+                    PurchaseItems = new List<PurchaseItem>()
+                },
+                new Item
+                {
+                    Name = "Dumbbell Set 10-50kg",
+                    Description = "Adjustable dumbbells for strength training",
+                    PurchasePrice = 199.99m,
+                    QuantityAvailableForPurchase = 15,
+                    QuantityForRestock = 5,
+                    TypeItem = typeEquipment,
+                    Brand = brandReebok,
+                    RestockPrice = 150.00m,
+                    PurchaseItems = new List<PurchaseItem>()
+                },
+                new Item
+                {
+                    Name = "Running Shoes",
+                    Description = "Lightweight running shoes for gym and outdoor use",
+                    PurchasePrice = 120.00m,
+                    QuantityAvailableForPurchase = 50,
+                    QuantityForRestock = 10,
+                    TypeItem = typeApparel,
+                    Brand = brandAdidas,
+                    RestockPrice = 90.00m,
+                    PurchaseItems = new List<PurchaseItem>()
+                },
+                new Item
+                {
+                    Name = "Protein Shaker Bottle",
+                    Description = "BPA-free shaker bottle for protein shakes",
+                    PurchasePrice = 12.50m,
+                    QuantityAvailableForPurchase = 200,
+                    QuantityForRestock = 50,
+                    TypeItem = typeAccessory,
+                    Brand = brandNike,
+                    RestockPrice = 10.00m,
+                    PurchaseItems = new List<PurchaseItem>()
+                },
+                new Item
+                {
+                    Name = "Pull-Up Bar",
+                    Description = "Doorway pull-up bar for home workouts",
+                    PurchasePrice = 45.99m,
+                    QuantityAvailableForPurchase = 30,
+                    QuantityForRestock = 10,
+                    TypeItem = typeEquipment,
+                    Brand = brandReebok,
+                    RestockPrice = 35.00m,
+                    PurchaseItems = new List<PurchaseItem>()
+                }
+            };
+
+            context.Brands.AddRange(brandNike, brandAdidas, brandReebok);
+            context.TypeItems.AddRange(typeEquipment, typeAccessory, typeApparel);
+            context.Items.AddRange(items);
+            context.SaveChanges();
+        }
+
+        }
 }
