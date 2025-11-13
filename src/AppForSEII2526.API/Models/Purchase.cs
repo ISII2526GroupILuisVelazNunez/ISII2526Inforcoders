@@ -16,6 +16,29 @@ namespace AppForSEII2526.API.Models
             Total_price = total_price;
             PaymentMethod = paymentMethod;
         }
+        public Purchase(string city, string country, DateTime date, string? description, string street, List<PurchaseItem> purchaseItems, decimal total_price, PaymentMethod paymentMethod)
+        {
+            City = city;
+            Country = country;
+            Date = date;
+            Description = description;
+            Street = street;
+            PurchaseItems = purchaseItems;
+            Total_price = total_price;
+            PaymentMethod = paymentMethod;
+        }
+
+        //fix error
+        public Purchase(string city, string country, DateTime date, string? description, string street)
+        {
+            City = city;
+            Country = country;
+            Date = date;
+            Description = description;
+            Street = street;
+        }
+
+        public Purchase() { } // parameterless
 
         public int Id {get; set;}
         [Required(AllowEmptyStrings = false, ErrorMessage = "Please, specify the city.")]

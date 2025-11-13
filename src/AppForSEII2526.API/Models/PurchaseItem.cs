@@ -15,6 +15,16 @@
             PurchaseId = purchaseId;
         }
 
+        //only IDs for post
+        public PurchaseItem(int itemId,int quantity, int amount_bought, decimal price, int purchaseId)
+        {
+            ItemId = itemId;
+            Quantity = quantity;
+            Amount_bought = amount_bought;
+            Price = price;
+            PurchaseId = purchaseId;
+        }
+
         public int ItemId { get; set; }
         public Item Item { get; set; }
         public int Quantity { get; set; }
