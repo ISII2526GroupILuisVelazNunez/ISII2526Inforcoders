@@ -1,5 +1,6 @@
 ﻿using AppForSEII2526.API.Controllers;
 using AppForSEII2526.API.DTOs.IncidentDTOs;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -63,6 +64,35 @@ namespace AppForSEII2526.UT.IncidentsController_test
 
             var errorActual = problemDetails.Errors.First().Value[0];
             Assert.StartsWith(errorExpected, errorActual);
+        }
+
+        [Fact]
+        [Trait("LevelTesting", "Unit Testing")]
+        [Trait("Database", "WithoutFixture")]
+        public async Task CreateIncident_Success_test()
+        {
+            var mock = new Mock<ILogger<IncidentsController>>();
+            ILogger<IncidentsController> logger = mock.Object;
+
+            var controller = new IncidentsController(_context, logger);
+
+            var incidentItems = new List<IncidentItemDTO>() { new IncidentItemDTO(1, 0, "The pool",
+                "Pool surf incident", "Surf board split in half", "Pool-related")};
+
+            var incidentDTO = new IncidentForCreateDTO(incidentItems, 0, "Pool incident 13-11-25",
+                DateTime.Today.AddDays(-1), "Surfing", "Alex Villarejo");
+
+            var expectedDetailDTO = new IncidentDetailDTO(0, "Pool incident 13-11-25", 
+                DateTime.Today.AddDays(-1), "Surfing", "Alex Villarejo", incidentItems);
+
+            // Act
+            var result = await controller.CreateIncident(incidentDTO);
+
+            // Assert
+            var createdResult = Assert.IsType<CreatedAtActionResult>(result);
+            var actualIncidentDetailDTO = Assert.IsType<IncidentDetailDTO>(createdResult.Value);
+
+            Assert.Equal(expectedDetailDTO, actualIncidentDetailDTO);
         }
     }
 }
