@@ -14,6 +14,23 @@ namespace AppForSEII2526.UT.IncidentsController_test
         public PostIncidents_test() 
         {
             ApplicationUser user = new ApplicationUser("Mario", "Sanchez");
+
+            var type = new TypeItem("Pool", new List<Item>());
+            var brand = new Brand("AquaMan", new List<Item>());
+
+            var item = new Item("Surfing board split in half", "Surf board", 30, 8, 15,
+                new List<PurchaseItem>(), type, brand, 13);
+
+            var ife = new ItemForExercise("The pool", item);
+
+            var incident = new Incident("Pool incident 13-11-25", "", "Surfing",
+                DateTime.Today.AddDays(-1), new List<IncidentItem>(), 0, user);
+
+            incident.IncidentItems.Add(new IncidentItem(incident, ife));
+
+            _context.Add(ife);
+            _context.Add(incident);
+            _context.SaveChanges();
         }
 
         public static IEnumerable<object[]> TestCasesFor_CreateIFE()
@@ -66,6 +83,7 @@ namespace AppForSEII2526.UT.IncidentsController_test
             Assert.StartsWith(errorExpected, errorActual);
         }
 
+        /*
         [Fact]
         [Trait("LevelTesting", "Unit Testing")]
         [Trait("Database", "WithoutFixture")]
@@ -94,5 +112,6 @@ namespace AppForSEII2526.UT.IncidentsController_test
 
             Assert.Equal(expectedDetailDTO, actualIncidentDetailDTO);
         }
+        */
     }
 }

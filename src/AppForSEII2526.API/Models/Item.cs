@@ -7,6 +7,7 @@
         public Item(string description) 
         {
             Description = description;
+            Name = "-";
         }
 
         public Item(string description, string name, decimal purchasePrice, int quantityAvailableForPurchase, int quantityForRestock, IList<PurchaseItem> purchaseItems, TypeItem typeItem, Brand brand, decimal? restockPrice)

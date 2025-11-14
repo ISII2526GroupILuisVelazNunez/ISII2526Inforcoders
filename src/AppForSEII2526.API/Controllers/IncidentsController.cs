@@ -88,7 +88,7 @@ namespace AppForSEII2526.API.Controllers
 
                 .ToList();
 
-            var incident = new Incident(incidentForCreate.Title, "", incidentForCreate.Exercise, 
+            var incident = new Incident(incidentForCreate.Title, "-", incidentForCreate.Exercise, 
                 incidentForCreate.DateOfIdentification, new List<IncidentItem>(), incidentForCreate.IncidentState, user);
 
             foreach(var item in incidentForCreate.IncidentItems)
