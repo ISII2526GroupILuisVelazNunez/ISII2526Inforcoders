@@ -27,5 +27,18 @@
         public decimal PurchasePrice { get; set; }
         [Required]
         public int QuantityAvailableForPurchase { get; set; }
+
+        public override bool Equals(object? obj)
+        {
+            var other = obj as ItemForPurchaseDTO;
+            if (other == null) return false;
+
+            return Id == other.Id &&
+                   Name == other.Name &&
+                   Brand == other.Brand &&
+                   Description == other.Description &&
+                   PurchasePrice == other.PurchasePrice &&
+                   QuantityAvailableForPurchase == other.QuantityAvailableForPurchase;
+        }
     }
 }
