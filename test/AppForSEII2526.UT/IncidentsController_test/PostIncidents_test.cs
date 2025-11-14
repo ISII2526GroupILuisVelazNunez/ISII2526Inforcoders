@@ -1,4 +1,5 @@
-﻿using AppForSEII2526.API.DTOs.IncidentDTOs;
+﻿using AppForSEII2526.API.Controllers;
+using AppForSEII2526.API.DTOs.IncidentDTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,7 @@ namespace AppForSEII2526.UT.IncidentsController_test
             ApplicationUser user = new ApplicationUser("Mario", "Sanchez");
         }
 
-        public static IEnumerable<object[]> TestCasesFor_CreateIncident()
+        public static IEnumerable<object[]> TestCasesFor_CreateIFE()
         {
             var incidentNoItems = new IncidentForCreateDTO(new List<IncidentItemDTO>(), 0, "fake incident",
                 DateTime.Today.AddDays(-1), "rock climbing", "Mario Sanchez");
@@ -40,6 +41,28 @@ namespace AppForSEII2526.UT.IncidentsController_test
             };
 
             return allTests;
+        }
+
+        [Theory]
+        [Trait("LevelTesting", "Unit Testing")]
+        [Trait("Database", "WithoutFixture")]
+        [MemberData(nameof(TestCasesFor_CreateIFE))]
+        public async Task CreateIncident_Error_test(IncidentForCreateDTO incident, string errorExpected)
+        {
+            var mock = new Mock<ILogger<IncidentsController>>();
+            ILogger<IncidentsController> logger = mock.Object;
+
+            var controller = new IncidentsController(_context, logger);
+
+            // Act
+            var result = await controller.CreateIncident(incident);
+
+            // Assert
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            var problemDetails = Assert.IsType<ValidationProblemDetails>(badRequestResult.Value);
+
+            var errorActual = problemDetails.Errors.First().Value[0];
+            Assert.StartsWith(errorExpected, errorActual);
         }
     }
 }
