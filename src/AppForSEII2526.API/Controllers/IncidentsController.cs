@@ -70,12 +70,9 @@ namespace AppForSEII2526.API.Controllers
 
             var reporterNameSplit = incidentForCreate.ReporterName.Split(' '); // Separate the reporter's first and last name
             if (reporterNameSplit.Length != 2)
-                ModelState.AddModelError("IncidentApplicationUser", "Error! Please write the reporter's full name");
+                ModelState.AddModelError("IncidentApplicationUser", "Error! Please write the reporter's full name using 2 words");
 
             var user = new ApplicationUser(reporterNameSplit[0], reporterNameSplit[1]);
-            if (user == null)
-                ModelState.AddModelError("IncidentApplicationUser", "Error! Name is not registered");
-            
 
             if (ModelState.ErrorCount > 0)
                 return BadRequest(new ValidationProblemDetails(ModelState));
