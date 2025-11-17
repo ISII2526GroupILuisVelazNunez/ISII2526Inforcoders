@@ -29,6 +29,12 @@ namespace AppForSEII2526.API.Controllers
                 return NotFound();
             }
 
+            if (id <= 0)
+            {
+                _logger.LogError("Error: the Id must be at least 1");
+                return NotFound();
+            }
+
             var Incident = await _context.Incidents
                 .Where(i => i.Id == id)
                     .Include(i => i.User)
