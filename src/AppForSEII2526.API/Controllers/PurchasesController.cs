@@ -87,6 +87,9 @@ namespace AppForSEII2526.API.Controllers
             if (string.IsNullOrWhiteSpace(purchaseForCreate.Country))
                 ModelState.AddModelError("Country", "Error! You must specify a country.");
 
+            if (!string.IsNullOrWhiteSpace(purchaseForCreate.Description) && !purchaseForCreate.Description.StartsWith("My purchase for")) 
+                ModelState.AddModelError("Description", "Error! You must start the Description with My purchase for");
+
             if (purchaseForCreate.PurchaseItems == null || !purchaseForCreate.PurchaseItems.Any())
                 ModelState.AddModelError("PurchaseItems", "Error! You must include at least one item to be purchased.");
 
