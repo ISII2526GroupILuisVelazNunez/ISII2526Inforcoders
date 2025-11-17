@@ -7,7 +7,7 @@ using AppForSEII2526.API.Controllers;
 using AppForSEII2526.API.DTOs.ItemForExerciseDTOs;
 using AppForSEII2526.API.DTOs.IncidentDTOs;
 
-namespace AppForSEII2526.UT.ItemsController_test
+namespace AppForSEII2526.UT.IncidentsController_test
 {
     public class GetIncidents_test : AppForSEII25264SqliteUT
     {
@@ -36,6 +36,23 @@ namespace AppForSEII2526.UT.ItemsController_test
         [Trait("Database", "WithoutFixture")]
         [Trait("LevelTesting", "Unit Testing")]
         public async Task GetIncident_NotFound_test()
+        {
+            // Arrange
+            var mock = new Mock<ILogger<IncidentsController>>();
+            ILogger<IncidentsController> logger = mock.Object;
+            var controller = new IncidentsController(new ApplicationDbContext(_contextOptions), logger);
+
+            // Act
+            var result = await controller.GetIncident(999999);
+
+            //Assert
+            Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        [Trait("Database", "WithoutFixture")]
+        [Trait("LevelTesting", "Unit Testing")]
+        public async Task GetIncident_IdLeqZero_test()
         {
             // Arrange
             var mock = new Mock<ILogger<IncidentsController>>();
