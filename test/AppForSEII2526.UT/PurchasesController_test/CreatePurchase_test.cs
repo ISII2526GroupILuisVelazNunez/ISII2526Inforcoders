@@ -237,6 +237,32 @@ namespace AppForSEII2526.UT.PurchasesController_test
             );
         }
 
+        // Test 8 - Description input does not start with "My purchase for"
+        [Fact]
+        [Trait("LevelTesting", "Unit Testing")]
+        public async Task CreatePurchase_bad_description_returns_badrequest()
+        {
+            //arrange
+            var logger = new Mock<ILogger<ItemsController>>().Object;
+            var controller = new PurchasesController(_context, logger);
+
+            var dto = new PurchaseForCreateDTO
+            {
+                Street = "Juan Sebastián Elcano",
+                City = "Albacete",
+                Country = "Spain",
+                PaymentMethodId = 1,
+                Description = "Hola",
+                PurchaseItems = new List<ItemForPurchaseSelectionDTO>()
+            };
+
+            var result = await controller.CreatePurchase(dto);
+            //assert
+            var badRequest = Assert.IsType<BadRequestObjectResult>(result);
+            var problem = Assert.IsType<ValidationProblemDetails>(badRequest.Value);
+
+            Assert.Equal("Error! You must start the Description with My purchase for", problem.Errors["Description"][0]);
+        }
 
         // Test 7 - Sucessfully purchased
         [Fact]
@@ -254,7 +280,7 @@ namespace AppForSEII2526.UT.PurchasesController_test
                 City = "Albacete",
                 Country = "Spain",
                 PaymentMethodId = 1,
-                Description = "Dummy purchase",
+                Description = "My purchase for",
                 PurchaseItems = new List<ItemForPurchaseSelectionDTO>
                 {
                     new ItemForPurchaseSelectionDTO
@@ -277,7 +303,7 @@ namespace AppForSEII2526.UT.PurchasesController_test
             Assert.Equal("Juan Sebastián Elcano", actualPurchaseDto.Street);
             Assert.Equal("Albacete", actualPurchaseDto.City);
             Assert.Equal("Spain", actualPurchaseDto.Country);
-            Assert.Equal("Dummy purchase", actualPurchaseDto.Description);
+            Assert.Equal("My purchase for", actualPurchaseDto.Description);
             Assert.Equal(10m, actualPurchaseDto.Total_price);
             Assert.Equal(1, actualPurchaseDto.PaymentMethod.Id);
 
