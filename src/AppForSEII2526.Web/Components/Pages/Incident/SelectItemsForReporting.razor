@@ -1,0 +1,101 @@
+﻿@page "/incident/selectitemsforreporting"
+
+@using AppForSEII2526.Web.API
+@inject AppForSEII2526APIClient apiclient
+@inject ILogger<SelectItemsForReporting> logger
+
+<h3>Select Items For Reporting</h3>
+
+<div class="container-fluid">
+    <div class="row" hidden="@hideErrors">
+        <p>Errors: @errors</p>
+    </div>
+    <br />
+    <br />
+
+    <div class="row">
+        <div class="col-md-9">
+            <div class="row">
+                <div class="row">
+                    <p>Filters here</p>
+                    <div class="col-md-4">
+                        <span> Name </span>
+                        <input type="text" class="form-control" @bind="itemName" />
+                    </div>
+                    <div class="col-md-4">
+                        <span> Location </span>
+                        <input type="text" class="form-control" @bind="itemLocation" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <button class="btn btn-outline-primary" id="searchItems" 
+                            @onclick="@SearchItems">Search items</button>
+                    </div>
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                @if (items == null)
+                {
+                    <p>No items found...</p>
+                } else
+                {
+                    <p> There are @items.Count items</p>
+                }
+
+            </div>
+        </div>
+        <div class="col-md-3">
+            I'm not sure what'll be here
+        </div>
+    </div>
+</div>
+
+<!--
+<div class="row">
+    <div class="col-md-3">
+        aaaaa
+    </div>
+    <div class="col-md-3">
+        bbbbb*/
+    </div>
+    <div class="col-md-3">
+        aaaaa
+    </div>
+    <div class="col-md-3">
+        ccccc
+    </div>
+</div>
+-->
+
+@code {
+    private ICollection<ItemForReportingDTO> items;
+    private bool hideErrors { get { return errors.Length == 0; } }
+    private string errors = "";
+    private string? itemName { get; set; }
+    private string? itemLocation { get; set; }
+
+    public async void SearchItems()
+    {
+        try {
+            items = await apiclient.GetItemsForReportingAsync(itemName, itemLocation);
+        } catch (ApiException E) {
+            logger.LogError($"{DateTime.Now} Error: {E}");
+            errors = "Error while connecting to the system";
+        }
+    }
+
+    /*
+    protected override Task OnInitializedAsync()
+        {
+        _from = (_from == new DateTime(1, 1, 1)) ?
+            DateTime.SpecifyKind(DateTime.Today.AddDays(1), DateTimeKind.Utc) :
+        _from;
+
+        _to = (_to == new DateTime(1, 1, 1)) ?
+            DateTime.SpecifyKind(DateTime.Today.AddDays(2), DateTimeKind.Utc) :
+    _to;)
+    }
+    */
+}
