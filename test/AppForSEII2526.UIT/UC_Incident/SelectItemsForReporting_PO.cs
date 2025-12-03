@@ -12,10 +12,15 @@ namespace AppForSEII2526.UIT.UC_Incident
         By itemLocation = By.Id("itemLocation");
         By searchButton = By.Id("searchItems");
 
-        public void SearchItems(string name)
+        public void SearchItems(string name, string location)
         {
             WaitForBeingClickable(itemName);
             _driver.FindElement(itemName).SendKeys(name);
+
+            WaitForBeingClickable(itemLocation);
+            _driver.FindElement(itemLocation).SendKeys(location);
+
+            WaitForBeingClickable(searchButton);
             _driver.FindElement(searchButton).Click();
         }
 
