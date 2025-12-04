@@ -34,10 +34,10 @@ namespace AppForSEII2526.UIT.UC_Incident
         public bool isTableFound()
         {
             try {
-                var b = _driver.FindElement(noItemsP) == null;
-                return true;
-            } catch (NoSuchElementException e) {
+                var b = _driver.FindElement(noItemsP);
                 return false;
+            } catch (NoSuchElementException e) {
+                return true;
             }
         }
 
