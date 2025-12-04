@@ -41,6 +41,20 @@ namespace AppForSEII2526.UIT.UC_Incident
 
         [Fact]
         [Trait("LevelTesting", "Functional Testing")]
+        public void UC11_2_no_items_available()
+        {
+            //Arrange
+            InitialStepsForSelectItems();
+            
+            //Act
+            selectItemsForReporting_PO.SearchItems("fhqwhgads", "Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch"); // No item like this exists
+
+            //Assert
+            Assert.False(selectItemsForReporting_PO.isTableFound());
+        }
+
+        [Fact]
+        [Trait("LevelTesting", "Functional Testing")]
         public void UC11_3_1_filtering_by_name()
         {
             //Arrange
