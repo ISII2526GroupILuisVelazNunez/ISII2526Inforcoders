@@ -1,0 +1,227 @@
+﻿@page "/plan/selectclassesforplan"
+
+@using Microsoft.AspNetCore.Authorization
+@using AppForSEII2526.Web.API
+@inject AppForSEII2526APIClient apiclient
+@inject ILogger<SelectClassesForPlan> logger
+@inject PlanStateContainer planState
+@inject NavigationManager navigation
+@*@attribute [Authorize]*@
+
+<h3>Select Classes For Planning</h3>
+<div class="container-fluid">
+    <div class="row">
+        @* search and filter panel *@
+        <div class="col-8">
+            <div class="row">
+                @* class name filter *@
+                <div class="col-4">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="class-name-addon">Class Name</span>
+                        <input type="text" id="inputClassName" @bind="className" @bind:event="oninput" class="form-control" placeholder="Name" aria-label="Name" aria-describedby="class-name-addon">
+                    </div>
+                </div>
+
+                @* date filter *@
+                <div class="col-4">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Starting From</span>
+                        <InputDate @bind-Value="@FromDate" id="fromDate" />
+                    </div>
+                </div>
+
+                <div class="col-4">
+                    <button type="button" class="btn btn-primary" @onclick="SearchClasses" id="searchClasses">Search Classes</button>
+                </div>
+            </div>
+
+            @* available classes list *@
+            <div class="row">
+                @if (classes == null)
+                {
+                    <p>Loading classes....</p>
+                }
+                @* display errors *@
+                else if (!string.IsNullOrEmpty(errors))
+                {
+                    <div class="alert alert-warning" role="alert">
+                        @errors
+                    </div>
+                }
+                @* no results found *@
+                else if (!classes.Any() && !string.IsNullOrEmpty(lastSearchAttempt))
+                {
+                    <div class="alert alert-warning" role="alert">
+                        No available classes found with the selected filters.
+                    </div>
+                }
+                @* results table *@
+                else if (classes.Any())
+                {
+                    <div class="mh-100 table-responsive">
+                        <table class="table table-condensed table-hover" id="TableOfClasses">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Price</th>
+                                    <th>Required Items</th>
+                                    <th>Date and Time</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var classItem in classes)
+                                {
+                                    @* exclude selected classes *@
+                                    @if (!PlanState.SelectedClasses.Any(c => c.Id == classItem.Id))
+                                    {
+                                        <tr id="ClassData_@classItem.Name">
+                                            <td>@classItem.Name</td>
+                                            <td>@classItem.Price.ToString("C2")</td>
+                                            <td>@(string.Join(", ", classItem.TypeItems))</td>
+                                            <td>@classItem.Date.DateTime.ToShortDateString() @classItem.Date.DateTime.ToShortTimeString()</td>
+                                            <td>
+                                                <button class="btn btn-outline-secondary" id="classToSelect_@classItem.Name" @onclick="@(() => AddClass(classItem))">Select</button>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @* plan cart *@
+        <div class="col-4" hidden="@hidePlanCart">
+            <div class="row">
+                <h3>Selected Classes</h3>
+            </div>
+            @foreach (ClassForPlanDTO item in PlanState.SelectedClasses)
+            {
+                <div class="row">
+                    <button type="button" class="btn btn-light" id="removeClass_@item.Name" @onclick="@(() => RemoveClass(item))">
+                        x @item.Name - @item.Price.ToString("C2")
+                    </button>
+                </div>
+            }
+            <div class="row mt-3">
+                <h4>Total Price: <span id="TotalPlanPrice">@TotalPlanPrice.ToString("C2")</span></h4>
+            </div>
+            <div class="row">
+                <button type="button" class="btn btn-success mt-2" id="continueToCreatePlanButton" @onclick="ContinueToCreatePlan" disabled="@(PlanState.SelectedClasses.Count == 0)">
+                    Continue (@PlanState.SelectedClasses.Count classes)
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    // dependencies
+    [Inject] private AppForSEII2526APIClient Apiclient { get; set; } = default!;
+    [Inject] private PlanStateContainer PlanState { get; set; } = default!;
+    [Inject] private NavigationManager Navigation { get; set; } = default!;
+    [Inject] private ILogger<SelectClassesForPlan> Logger { get; set; } = default!;
+
+    private ICollection<ClassForPlanDTO> classes = new List<ClassForPlanDTO>();
+    private string errors = string.Empty;
+    private string className = string.Empty;
+    private string lastSearchAttempt = string.Empty;
+
+    // ui properties
+    private bool hidePlanCart => PlanState.SelectedClasses.Count == 0;
+
+    private DateTime _fromDate;
+    private DateTime FromDate
+    {
+        get => _fromDate;
+        set
+        {
+            if (_fromDate != value)
+            {
+                _fromDate = value;
+                // clear cart on date change
+                PlanState.ClearPlanCart();
+            }
+        }
+    }
+
+    private decimal TotalPlanPrice => (decimal)PlanState.SelectedClasses.Sum(c => c.Price);
+
+    protected override async Task OnInitializedAsync()
+    {
+        // subscribe to state changes
+        PlanState.OnChange += StateHasChanged;
+        DateTime today = DateTime.Today.Date;
+        if (_fromDate == default)
+        {
+            // default to today
+            _fromDate = DateTime.SpecifyKind(today, DateTimeKind.Unspecified);
+        }
+        await SearchClasses();
+    }
+
+    public void Dispose()
+    {
+        PlanState.OnChange -= StateHasChanged;
+    }
+
+    private void AddClass(ClassForPlanDTO classItem)
+    {
+        PlanState.AddClassToPlan(classItem);
+    }
+
+    private void RemoveClass(ClassForPlanDTO item)
+    {
+        PlanState.RemoveClassFromPlan(item);
+    }
+
+    public async Task SearchClasses()
+    {
+        errors = string.Empty;
+        lastSearchAttempt = "Attempted";
+
+        // date validation
+        if (FromDate.Date < DateTime.Today.Date)
+        {
+            errors = "The search starting date cannot be earlier than today.";
+            // clear list so table hides
+            classes = new List<ClassForPlanDTO>();
+            return;
+        }
+
+        try
+        {
+            // api call
+            classes = await Apiclient.GetClassesForPlanAsync(className, FromDate);
+            errors = string.Empty;
+
+            // handle empty results
+            if (classes == null || !classes.Any())
+            {
+                classes = new List<ClassForPlanDTO>();
+            }
+        }
+        catch (ApiException ex)
+        {
+            Logger.LogError(ex, "Error searching for classes: {Message}", ex.Message);
+            errors = "Error connecting to the system or loading available classes.";
+            classes = new List<ClassForPlanDTO>();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Unexpected error searching for classes: {Message}", ex.Message);
+            errors = "Unexpected error: " + ex.Message;
+            classes = new List<ClassForPlanDTO>();
+        }
+
+        StateHasChanged();
+    }
+
+    private void ContinueToCreatePlan()
+    {
+        Navigation.NavigateTo("/plan/createplan");
+    }
+}

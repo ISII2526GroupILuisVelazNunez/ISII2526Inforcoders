@@ -173,7 +173,6 @@ namespace AppForSEII2526.API.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("UserId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
@@ -629,9 +628,7 @@ namespace AppForSEII2526.API.Migrations
                 {
                     b.HasOne("AppForSEII2526.API.Models.ApplicationUser", "User")
                         .WithMany("Incidents")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.Navigation("User");
                 });
