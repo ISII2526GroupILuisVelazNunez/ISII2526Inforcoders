@@ -127,7 +127,7 @@
     [Inject] private NavigationManager Navigation { get; set; } = default!;
     [Inject] private ILogger<SelectClassesForPlan> Logger { get; set; } = default!;
 
-    private ICollection<ClassForPlanDTO>? classes;
+    private ICollection<ClassForPlanDTO> classes = new List<ClassForPlanDTO>();
     private string errors = string.Empty;
     private string className = string.Empty;
     private string lastSearchAttempt = string.Empty;
