@@ -1,0 +1,33 @@
+﻿@page "/incidents/detailincident"
+@using AppForSEII2526.Web.API
+@using Microsoft.AspNetCore.Authorization
+@inject AppForSEII2526APIClient apiservice
+
+@attribute [Authorize]
+
+<h3>Incident</h3>
+
+@if (incident == null) {
+    <p>@error</p>
+} else
+{
+    <table class="table table-borderless table-sm">
+
+    </table>
+
+    <h4> Items reported: </h4>
+    <table class="table" id="reportedItems">
+
+    </table>
+}
+
+@code {
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public int IncidentID { get; set; }
+    private IncidentDetailDTO incident;
+    private string error = "";
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
+}
