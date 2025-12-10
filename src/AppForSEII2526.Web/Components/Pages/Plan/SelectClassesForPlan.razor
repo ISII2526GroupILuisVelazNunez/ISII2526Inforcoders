@@ -8,20 +8,13 @@
 @inject NavigationManager navigation
 @*@attribute [Authorize]*@
 
-
-
 <h3>Select Classes For Planning</h3>
 <div class="container-fluid">
-    @* Display Errors *@
-    <div class="row alert alert-danger" role="alert" hidden="@hideErrors">
-        <p id="ErrorsShown">Errors: @errors</p>
-    </div>
-
     <div class="row">
-        @* Search and Filter Panel (Main Flow - Step 2) *@
+        @* search and filter panel *@
         <div class="col-8">
             <div class="row">
-                @* Filter by Class Name *@
+                @* class name filter *@
                 <div class="col-4">
                     <div class="input-group mb-3">
                         <span class="input-group-text" id="class-name-addon">Class Name</span>
@@ -29,7 +22,7 @@
                     </div>
                 </div>
 
-                @* Filter by Date (Starting From) - Matches API signature: GetClassesForPlan(name, date) *@
+                @* date filter *@
                 <div class="col-4">
                     <div class="input-group mb-3">
                         <span class="input-group-text">Starting From</span>
@@ -37,27 +30,33 @@
                     </div>
                 </div>
 
-                @* The 'Type' and 'To Date' filters are omitted to match your current API endpoint *@
-
                 <div class="col-4">
                     <button type="button" class="btn btn-primary" @onclick="SearchClasses" id="searchClasses">Search Classes</button>
                 </div>
             </div>
 
-            @* Available Classes List (Main Flow - Step 2) *@
+            @* available classes list *@
             <div class="row">
                 @if (classes == null)
                 {
                     <p>Loading classes....</p>
                 }
+                @* display errors *@
+                else if (!string.IsNullOrEmpty(errors))
+                {
+                    <div class="alert alert-warning" role="alert">
+                        @errors
+                    </div>
+                }
+                @* no results found *@
                 else if (!classes.Any() && !string.IsNullOrEmpty(lastSearchAttempt))
                 {
-                    @* Alternative Flow 0: No classes available *@
                     <div class="alert alert-warning" role="alert">
                         No available classes found with the selected filters.
                     </div>
                 }
-                else
+                @* results table *@
+                else if (classes.Any())
                 {
                     <div class="mh-100 table-responsive">
                         <table class="table table-condensed table-hover" id="TableOfClasses">
@@ -73,7 +72,7 @@
                             <tbody>
                                 @foreach (var classItem in classes)
                                 {
-                                    @* Only display classes not already in the plan *@
+                                    @* exclude selected classes *@
                                     @if (!PlanState.SelectedClasses.Any(c => c.Id == classItem.Id))
                                     {
                                         <tr id="ClassData_@classItem.Name">
@@ -94,7 +93,7 @@
             </div>
         </div>
 
-        @* Plan Cart (Selected Classes & Total Price) (Main Flow - Steps 2 & 3) *@
+        @* plan cart *@
         <div class="col-4" hidden="@hidePlanCart">
             <div class="row">
                 <h3>Selected Classes</h3>
@@ -111,7 +110,6 @@
                 <h4>Total Price: <span id="TotalPlanPrice">@TotalPlanPrice.ToString("C2")</span></h4>
             </div>
             <div class="row">
-                @* Continue Button (Step 4). Disabled if no classes selected (Alternative Flow 4) *@
                 <button type="button" class="btn btn-success mt-2" id="continueToCreatePlanButton" @onclick="ContinueToCreatePlan" disabled="@(PlanState.SelectedClasses.Count == 0)">
                     Continue (@PlanState.SelectedClasses.Count classes)
                 </button>
@@ -121,7 +119,7 @@
 </div>
 
 @code {
-    // Inject dependencies
+    // dependencies
     [Inject] private AppForSEII2526APIClient Apiclient { get; set; } = default!;
     [Inject] private PlanStateContainer PlanState { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
@@ -132,9 +130,8 @@
     private string className = string.Empty;
     private string lastSearchAttempt = string.Empty;
 
-    // UI properties
+    // ui properties
     private bool hidePlanCart => PlanState.SelectedClasses.Count == 0;
-    private bool hideErrors => string.IsNullOrEmpty(errors);
 
     private DateTime _fromDate;
     private DateTime FromDate
@@ -145,7 +142,7 @@
             if (_fromDate != value)
             {
                 _fromDate = value;
-                // Clear the cart when search date changes to ensure selection validity
+                // clear cart on date change
                 PlanState.ClearPlanCart();
             }
         }
@@ -153,20 +150,16 @@
 
     private decimal TotalPlanPrice => (decimal)PlanState.SelectedClasses.Sum(c => c.Price);
 
-
     protected override async Task OnInitializedAsync()
     {
-        // Subscribe to state changes to refresh UI when the cart changes
+        // subscribe to state changes
         PlanState.OnChange += StateHasChanged;
-
         DateTime today = DateTime.Today.Date;
-
         if (_fromDate == default)
         {
-            // Default search date to today
+            // default to today
             _fromDate = DateTime.SpecifyKind(today, DateTimeKind.Unspecified);
         }
-
         await SearchClasses();
     }
 
@@ -190,24 +183,24 @@
         errors = string.Empty;
         lastSearchAttempt = "Attempted";
 
-        // Date validation (Alternative Flow 2)
+        // date validation
         if (FromDate.Date < DateTime.Today.Date)
         {
-            errors = "The search starting date cannot be earlier than today. (Alternative Flow 2)";
+            errors = "The search starting date cannot be earlier than today.";
+            // clear list so table hides
+            classes = new List<ClassForPlanDTO>();
             return;
         }
 
         try
         {
-            // API Call: Using the implemented GetClassesForPlan(string? name, DateTime? date)
-            // Note: Your API uses DateTime, not DateTimeOffset, so we pass FromDate directly.
+            // api call
             classes = await Apiclient.GetClassesForPlanAsync(className, FromDate);
             errors = string.Empty;
 
+            // handle empty results
             if (classes == null || !classes.Any())
             {
-                // Alternative Flow 0 handling
-                errors = "No available classes found with the search criteria. (Alternative Flow 0)";
                 classes = new List<ClassForPlanDTO>();
             }
         }
@@ -229,13 +222,6 @@
 
     private void ContinueToCreatePlan()
     {
-        // Navigate to the plan creation page to complete Step 5 (Request remaining mandatory data)
         Navigation.NavigateTo("/plan/createplan");
     }
-}
-
-
-
-@code {
-
 }
