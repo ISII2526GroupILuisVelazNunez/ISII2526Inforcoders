@@ -1,13 +1,17 @@
 ﻿@page "/incident/selectitemsforreporting"
 
 @using AppForSEII2526.Web.API
+<!-- @using AppForSEII2526.Web.Components.Shared -->
+@using Microsoft.AspNetCore.Authorization
 
 @inject ILogger<SelectItemsForReporting> logger
 @inject AppForSEII2526APIClient apiclient
-
 @inject IncidentStateContainer incidentState
+@inject NavigationManager navigation
 
 <h3>Select Items For Reporting</h3>
+
+<h5>Items selected: @incident.IncidentItems.Count</h5>
 
 <div class="container-fluid">
     <div class="row" hidden="@hideErrors">
@@ -41,9 +45,9 @@
             </div>
             <br />
             <div class="row">
-                @if (Items == null)
+                @if (Items == null || Items.Count == 0)
                 {
-                    <p id="noItemsP">No items found...</p>
+                    <p id="noItemsP">No items found... Try again</p>
                 } else
                 {
                     <table class="table table-condensed table-hover" id="itemsTable">
@@ -76,8 +80,28 @@
 
             </div>
         </div>
-        <div class="col-md-4">
-            Items list
+        <div class="col-md-4" style="background-color:#E3E3E3">
+
+            <button class="btn btn-primary" id="Report" @onclick="@ReportIncident" disabled="@hideItemList">Report Incident</button>
+            <br/>
+            <p>Items list</p>
+            <br/>
+            <div class="row" hidden="@hideItemList">
+                @foreach (IncidentItemDTO item in incident.IncidentItems)
+                {
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p> @item.Name </p>
+                        </div>
+
+                        <div class="col-md-6">
+                            <button class="btn btn-outline-primary" id="removeItem_@item.Name"
+                                    @onclick="@(() => RemoveIncidentItem(item))"> Remove </button>
+                        </div>
+                    </div>
+                    <br/>
+                }
+            </div>
         </div>
     </div>
 </div>
@@ -105,6 +129,7 @@
     private string errors = "";
     private string? itemName { get; set; }
     private string? itemLocation { get; set; }
+    private Boolean hideItemList { get { return incident.IncidentItems.Count == 0; } }
 
     public async void SearchItems()
     {
@@ -114,6 +139,8 @@
             logger.LogError($"{DateTime.Now} Error: {E}");
             errors = "Error while connecting to the system";
         }
+
+        StateHasChanged();
     }
 
     /*
@@ -136,5 +163,20 @@
     private void AddItem(ItemForReportingDTO ife)
     {
         incidentState.AddItemToReport(ife);
+    }
+
+    private void RemoveIncidentItem(IncidentItemDTO item)
+    {
+        incidentState.RemoveIncidentItemToReport(item);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        SearchItems();
+    }
+
+    private void ReportIncident()
+    {
+        navigation.NavigateTo("/Incidents/CreateIncident");
     }
 }
