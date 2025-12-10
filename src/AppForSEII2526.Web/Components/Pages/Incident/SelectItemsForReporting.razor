@@ -1,0 +1,182 @@
+﻿@page "/incident/selectitemsforreporting"
+
+@using AppForSEII2526.Web.API
+<!-- @using AppForSEII2526.Web.Components.Shared -->
+@using Microsoft.AspNetCore.Authorization
+
+@inject ILogger<SelectItemsForReporting> logger
+@inject AppForSEII2526APIClient apiclient
+@inject IncidentStateContainer incidentState
+@inject NavigationManager navigation
+
+<h3>Select Items For Reporting</h3>
+
+<h5>Items selected: @incident.IncidentItems.Count</h5>
+
+<div class="container-fluid">
+    <div class="row" hidden="@hideErrors">
+        <p>Errors: @errors</p>
+    </div>
+    <br />
+    <br />
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="row">
+                <div class="row">
+                    <div class="col-md-4">
+                        <span> Name </span>
+                        <input type="text" class="form-control" @bind="itemName" id="itemName"/>
+                    </div>
+                    <div class="col-md-4">
+                        <span> Location </span>
+                        <input type="text" class="form-control" @bind="itemLocation" id="itemLocation" />
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-md-3">
+
+                        <br />
+                        <button class="btn btn-outline-primary" id="searchItems" 
+                            @onclick="@SearchItems">Search items</button>
+                    </div>
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                @if (Items == null || Items.Count == 0)
+                {
+                    <p id="noItemsP">No items found... Try again</p>
+                } else
+                {
+                    <table class="table table-condensed table-hover" id="itemsTable">
+                         <thead>
+                             <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Location</th>
+                                <th>Description</th>
+                                <th>Report</th>
+                             </tr>
+                         </thead>
+
+                         <tbody>
+                            @foreach (var ife in Items)
+                            {
+                                <tr id="ItemData_@ife.Name">
+                                    <td>@ife.Name</td>
+                                    <td>@ife.Type</td>
+                                    <td>@ife.Location</td>
+                                    <td>@ife.Description</td>
+                                    <td>
+                                        <button class="btn btn-outline-secondary" id="itemToReport_@ife.Name" @onclick="@(()=>AddItem(ife))">Add</button>
+                                    </td>
+                                </tr>
+                            }
+                         </tbody>
+                     </table>
+                }
+
+            </div>
+        </div>
+        <div class="col-md-4" style="background-color:#E3E3E3">
+
+            <button class="btn btn-primary" id="Report" @onclick="@ReportIncident" disabled="@hideItemList">Report Incident</button>
+            <br/>
+            <p>Items list</p>
+            <br/>
+            <div class="row" hidden="@hideItemList">
+                @foreach (IncidentItemDTO item in incident.IncidentItems)
+                {
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p> @item.Name </p>
+                        </div>
+
+                        <div class="col-md-6">
+                            <button class="btn btn-outline-primary" id="removeItem_@item.Name"
+                                    @onclick="@(() => RemoveIncidentItem(item))"> Remove </button>
+                        </div>
+                    </div>
+                    <br/>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--
+<div class="row">
+    <div class="col-md-3">
+        aaaaa
+    </div>
+    <div class="col-md-3">
+        bbbbb*/
+    </div>
+    <div class="col-md-3">
+        aaaaa
+    </div>
+    <div class="col-md-3">
+        ccccc
+    </div>
+</div>
+-->
+
+@code {
+    private ICollection<ItemForReportingDTO> Items;
+    private bool hideErrors { get { return errors.Length == 0; } }
+    private string errors = "";
+    private string? itemName { get; set; }
+    private string? itemLocation { get; set; }
+    private Boolean hideItemList { get { return incident.IncidentItems.Count == 0; } }
+
+    public async void SearchItems()
+    {
+        try {
+            Items = await apiclient.GetItemsForReportingAsync(itemName, itemLocation);
+        } catch (ApiException E) {
+            logger.LogError($"{DateTime.Now} Error: {E}");
+            errors = "Error while connecting to the system";
+        }
+
+        StateHasChanged();
+    }
+
+    /*
+    protected override Task OnInitializedAsync()
+        {
+        _from = (_from == new DateTime(1, 1, 1)) ?
+            DateTime.SpecifyKind(DateTime.Today.AddDays(1), DateTimeKind.Utc) :
+        _from;
+
+        _to = (_to == new DateTime(1, 1, 1)) ?
+            DateTime.SpecifyKind(DateTime.Today.AddDays(2), DateTimeKind.Utc) :
+    _to;)
+    }
+    */
+
+    private string error;
+    private IncidentForCreateDTO incident => incidentState.Incident;
+    private bool ReportButtonDisabled { get { return incident.IncidentItems.Count == 0; } }
+
+    private void AddItem(ItemForReportingDTO ife)
+    {
+        incidentState.AddItemToReport(ife);
+    }
+
+    private void RemoveIncidentItem(IncidentItemDTO item)
+    {
+        incidentState.RemoveIncidentItemToReport(item);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        SearchItems();
+    }
+
+    private void ReportIncident()
+    {
+        navigation.NavigateTo("/Incidents/CreateIncident");
+    }
+}
