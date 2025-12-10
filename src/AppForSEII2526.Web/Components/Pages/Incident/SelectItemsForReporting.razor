@@ -60,7 +60,7 @@
                          <tbody>
                             @foreach (var ife in Items)
                             {
-                                <tr id="MovieData_@ife.Name">
+                                <tr id="ItemData_@ife.Name">
                                     <td>@ife.Name</td>
                                     <td>@ife.Type</td>
                                     <td>@ife.Location</td>
@@ -131,7 +131,7 @@
 
     private string error;
     private IncidentForCreateDTO incident => incidentState.Incident;
-    private bool RentButtonDisabled { get { return incident.IncidentItems.Count == 0; } }
+    private bool ReportButtonDisabled { get { return incident.IncidentItems.Count == 0; } }
 
     private void AddItem(ItemForReportingDTO ife)
     {
