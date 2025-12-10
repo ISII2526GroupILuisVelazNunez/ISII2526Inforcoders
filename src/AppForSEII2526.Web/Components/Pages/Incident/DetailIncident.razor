@@ -30,4 +30,37 @@
 
     [CascadingParameter]
     private Task<AuthenticationState>? authenticationState { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        string userName = "";
+        if (authenticationState is not null)
+        {
+            var authState = await authenticationState;
+            var user = authState?.User;
+
+            if (user is not null)
+            {
+                if (user.Identity is not null && user.Identity.IsAuthenticated && user.IsInRole("User"))
+                {
+                    userName = user.Identity.Name;
+                }
+            }
+        }
+
+        try
+        {
+            incident = await apiservice.GetIncidentAsync(IncidentID);
+        }
+        catch (ApiException exception)
+        {
+            incident = null;
+        }
+        if ((incident == null) || (incident.ReporterName != userName))
+        {
+            error = $"Error! You are not authorized to see this rental or there is not a rental with id={IncidentID}";
+        }
+
+
+    }
 }
