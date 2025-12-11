@@ -1,9 +1,10 @@
 ﻿using AppForSEII2526.API.Controllers;
 using AppForSEII2526.API.DTOs.ClassDTOs;
 using AppForSEII2526.API.DTOs.PlanDTOs;
-namespace AppForSEII2526.UT.ClassesController_test
+
+namespace AppForSEII2526.UT.PlansController_test
 {
-    public class PostCreatePlan_test : AppForSEII25264SqliteUT 
+    public class PostCreatePlan_test : AppForSEII25264SqliteUT
     {
         // creating seeded entities
         private readonly Class classWithCapacity; // id 1
@@ -78,8 +79,11 @@ namespace AppForSEII2526.UT.ClassesController_test
         public async Task CreatePlan_OK_ShouldReturn201Created()
         {
             // ARRANGE
-            var logger = new Mock<ILogger<ClassesController>>().Object; // mock logger
-            var controller = new ClassesController(_context, logger);
+            // CHANGED: Mock<ILogger<PlansController>>
+            var logger = new Mock<ILogger<PlansController>>().Object;
+
+            // CHANGED: Instantiating PlansController
+            var controller = new PlansController(_context, logger);
 
             // dto client would send
             var createDTO = new PlanForCreateDTO
@@ -125,8 +129,8 @@ namespace AppForSEII2526.UT.ClassesController_test
         public async Task CreatePlan_Fail_NoItems_ShouldReturn400BadRequest()
         {
             // ARRANGE
-            var logger = new Mock<ILogger<ClassesController>>().Object;
-            var controller = new ClassesController(_context, logger);
+            var logger = new Mock<ILogger<PlansController>>().Object;
+            var controller = new PlansController(_context, logger);
 
             var createDTO = new PlanForCreateDTO
             {
@@ -150,8 +154,8 @@ namespace AppForSEII2526.UT.ClassesController_test
         public async Task CreatePlan_Fail_PaymentMethodNotFound_ShouldReturn404NotFound()
         {
             // ARRANGE
-            var logger = new Mock<ILogger<ClassesController>>().Object;
-            var controller = new ClassesController(_context, logger);
+            var logger = new Mock<ILogger<PlansController>>().Object;
+            var controller = new PlansController(_context, logger);
 
             var createDTO = new PlanForCreateDTO
             {
@@ -178,8 +182,8 @@ namespace AppForSEII2526.UT.ClassesController_test
         public async Task CreatePlan_Fail_ClassNotFound_ShouldReturn404NotFound()
         {
             // ARRANGE
-            var logger = new Mock<ILogger<ClassesController>>().Object;
-            var controller = new ClassesController(_context, logger);
+            var logger = new Mock<ILogger<PlansController>>().Object;
+            var controller = new PlansController(_context, logger);
 
             var createDTO = new PlanForCreateDTO
             {
@@ -206,8 +210,8 @@ namespace AppForSEII2526.UT.ClassesController_test
         public async Task CreatePlan_Fail_NoCapacity_ShouldReturn409Conflict()
         {
             // ARRANGE
-            var logger = new Mock<ILogger<ClassesController>>().Object;
-            var controller = new ClassesController(_context, logger);
+            var logger = new Mock<ILogger<PlansController>>().Object;
+            var controller = new PlansController(_context, logger);
 
             var createDTO = new PlanForCreateDTO
             {

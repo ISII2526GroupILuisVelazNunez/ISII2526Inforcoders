@@ -1,7 +1,7 @@
 ﻿using AppForSEII2526.API.Controllers;
 using AppForSEII2526.API.DTOs.PlanDTOs;
 
-namespace AppForSEII2526.UT.ClassesController_test
+namespace AppForSEII2526.UT.PlansController_test 
 {
     public class GetPlan_test : AppForSEII25264SqliteUT
     {
@@ -72,8 +72,11 @@ namespace AppForSEII2526.UT.ClassesController_test
         public async Task GetPlan_OK_ShouldReturn200OK_And_CorrectDTO()
         {
             // ARRANGE
-            var logger = new Mock<ILogger<ClassesController>>().Object;
-            var controller = new ClassesController(_context, logger);
+            // CHANGED: Mock<ILogger<PlansController>> instead of ClassesController
+            var logger = new Mock<ILogger<PlansController>>().Object;
+
+            // CHANGED: Instantiating PlansController
+            var controller = new PlansController(_context, logger);
 
             // ACT
             // requesting id of the seeded plan
@@ -81,16 +84,21 @@ namespace AppForSEII2526.UT.ClassesController_test
 
             // ASSERT
             // checking 200
-            var okResult = Assert.IsType<OkObjectResult>(result);
-            Assert.Equal(200, okResult.StatusCode);
+            var okResult = Assert.IsType<OkObjectResult>(result.Result); // ActionResult<T> wraps the result in .Result
+
+            
+
+            var resultObject = result.Result as OkObjectResult;
+            Assert.NotNull(resultObject);
+            Assert.Equal(200, resultObject.StatusCode);
 
             // checking good dto
-            var dto = Assert.IsType<PlanForDetailDTO>(okResult.Value);
+            var dto = Assert.IsType<PlanForDetailDTO>(resultObject.Value);
 
             // checking all dto properties are fine
             Assert.Equal(_seededPlan.Id, dto.Id);
             Assert.Equal(_seededPlan.Name, dto.Name);
-            Assert.Equal(_seededPlan.TotalPrice, dto.TotalPrice); 
+            Assert.Equal(_seededPlan.TotalPrice, dto.TotalPrice);
             Assert.Equal("Test User", dto.UserFullName.Trim());
             Assert.Equal(_seededPlan.Weeks, dto.Weeks);
 
@@ -125,8 +133,8 @@ namespace AppForSEII2526.UT.ClassesController_test
         public async Task GetPlan_Fail_NotFound_ShouldReturn404NotFound()
         {
             // ARRANGE
-            var logger = new Mock<ILogger<ClassesController>>().Object;
-            var controller = new ClassesController(_context, logger);
+            var logger = new Mock<ILogger<PlansController>>().Object;
+            var controller = new PlansController(_context, logger);
             var idToRequest = 999; // obv will not exist
 
             // ACT
@@ -134,8 +142,8 @@ namespace AppForSEII2526.UT.ClassesController_test
 
             // ASSERT
             // checking 404
-            // controller returns NotFoundResult directly
-            Assert.IsType<NotFoundResult>(result);
+            // controller returns NotFoundResult wrapped in ActionResult
+            Assert.IsType<NotFoundResult>(result.Result);
         }
     }
 }
