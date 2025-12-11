@@ -110,7 +110,7 @@ namespace AppForSEII2526.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Brands");
+                    b.ToTable("Brands", (string)null);
                 });
 
             modelBuilder.Entity("AppForSEII2526.API.Models.Class", b =>
@@ -141,7 +141,7 @@ namespace AppForSEII2526.API.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Classes");
+                    b.ToTable("Classes", (string)null);
                 });
 
             modelBuilder.Entity("AppForSEII2526.API.Models.Incident", b =>
@@ -173,6 +173,7 @@ namespace AppForSEII2526.API.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
@@ -182,7 +183,7 @@ namespace AppForSEII2526.API.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Incidents");
+                    b.ToTable("Incidents", (string)null);
                 });
 
             modelBuilder.Entity("AppForSEII2526.API.Models.IncidentItem", b =>
@@ -200,7 +201,7 @@ namespace AppForSEII2526.API.Migrations
 
                     b.HasIndex("ItemForExerciseId");
 
-                    b.ToTable("IncidentItems");
+                    b.ToTable("IncidentItems", (string)null);
                 });
 
             modelBuilder.Entity("AppForSEII2526.API.Models.Item", b =>
@@ -247,7 +248,7 @@ namespace AppForSEII2526.API.Migrations
 
                     b.HasIndex("TypeItemId");
 
-                    b.ToTable("Items");
+                    b.ToTable("Items", (string)null);
                 });
 
             modelBuilder.Entity("AppForSEII2526.API.Models.ItemForExercise", b =>
@@ -269,7 +270,7 @@ namespace AppForSEII2526.API.Migrations
 
                     b.HasIndex("ItemId");
 
-                    b.ToTable("ItemsForExercise");
+                    b.ToTable("ItemsForExercise", (string)null);
                 });
 
             modelBuilder.Entity("AppForSEII2526.API.Models.PaymentMethod", b =>
@@ -293,7 +294,7 @@ namespace AppForSEII2526.API.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("PaymentMethods");
+                    b.ToTable("PaymentMethods", (string)null);
 
                     b.HasDiscriminator().HasValue("PaymentMethod");
 
@@ -339,7 +340,7 @@ namespace AppForSEII2526.API.Migrations
 
                     b.HasIndex("PaymentMethodId");
 
-                    b.ToTable("Plans");
+                    b.ToTable("Plans", (string)null);
                 });
 
             modelBuilder.Entity("AppForSEII2526.API.Models.PlanItem", b =>
@@ -361,7 +362,7 @@ namespace AppForSEII2526.API.Migrations
 
                     b.HasIndex("PlanId");
 
-                    b.ToTable("PlanItems");
+                    b.ToTable("PlanItems", (string)null);
                 });
 
             modelBuilder.Entity("AppForSEII2526.API.Models.Purchase", b =>
@@ -403,7 +404,7 @@ namespace AppForSEII2526.API.Migrations
 
                     b.HasIndex("PaymentMethodId");
 
-                    b.ToTable("Purchases");
+                    b.ToTable("Purchases", (string)null);
                 });
 
             modelBuilder.Entity("AppForSEII2526.API.Models.PurchaseItem", b =>
@@ -428,7 +429,7 @@ namespace AppForSEII2526.API.Migrations
 
                     b.HasIndex("PurchaseId");
 
-                    b.ToTable("PurchaseItems");
+                    b.ToTable("PurchaseItems", (string)null);
                 });
 
             modelBuilder.Entity("AppForSEII2526.API.Models.TypeItem", b =>
@@ -454,7 +455,7 @@ namespace AppForSEII2526.API.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("TypeItems");
+                    b.ToTable("TypeItems", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -628,7 +629,9 @@ namespace AppForSEII2526.API.Migrations
                 {
                     b.HasOne("AppForSEII2526.API.Models.ApplicationUser", "User")
                         .WithMany("Incidents")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
