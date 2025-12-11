@@ -87,6 +87,26 @@ namespace AppForSEII2526.UIT.UC_Incident
 
         [Fact]
         [Trait("LevelTesting", "Functional Testing")]
+        public void UC11_5_1_modify_list()
+        {
+            //Arrange
+            InitialStepsForSelectItems();
+            var expectedItems = new List<string[]> { new string[] { itemName2, "Remove" } };
+
+
+            //Act
+            selectItemsForReporting_PO.SearchItems("", "");
+            selectItemsForReporting_PO.SelectItems(new List<string> { itemName1, itemName2 });
+            selectItemsForReporting_PO.RemoveItemFromList(itemName1);
+
+            System.Threading.Thread.Sleep(1000);
+
+            //Assert 
+            Assert.True(selectItemsForReporting_PO.CheckListOfSelectedItems(expectedItems));
+        }
+
+        [Fact]
+        [Trait("LevelTesting", "Functional Testing")]
         public void UC11_4_1_no_items_selected()
         {
             //Arrange
