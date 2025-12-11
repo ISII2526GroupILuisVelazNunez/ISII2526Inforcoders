@@ -1,0 +1,100 @@
+﻿@page "/incidents/detailincident"
+@using AppForSEII2526.Web.API
+@using Microsoft.AspNetCore.Authorization
+@inject AppForSEII2526APIClient apiservice
+
+@attribute [Authorize]
+
+<h3>Incident</h3>
+
+@if (incident == null) {
+    <p>@error</p>
+} else
+{
+    <table class="table table-borderless table-sm">
+        <tr>
+            <th>Title</th>
+            <td id="Title">@incident.Title</td>
+        </tr>
+        <tr>
+            <th>Date of identification</th>
+            <td id="DateOfIdent">@incident.DateOfIdentification.ToString("dd/MM/yyyy hh:mm:ss")</td>
+        </tr>
+        <tr>
+            <th>Exercise</th>
+            <td id="Exercise">@incident.Exercise</td>
+        </tr>
+        <tr>
+            <th>Reporter</th>
+            <td id="ReporterName">@incident.ReporterName</td>
+        </tr>
+    </table>
+
+    <h4> Items reported: </h4>
+    <table class="table" id="reportedItems">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Type</th>
+                <th scope="col">Location</th>
+                <th scope="col">Description</th>
+                <th scope="col">Priority</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (IncidentItemDTO item in incident.IncidentItems)
+            {
+                <tr id="RentalItem_@item.Name">
+                    <td>@item.Type</td>
+                    <td>@item.Location</td>
+                    <td>@item.Description</td>
+                    <td>@item.IncidentPriority</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public int IncidentID { get; set; }
+    private IncidentDetailDTO incident;
+    private string error = "";
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        string userName = "";
+        if (authenticationState is not null)
+        {
+            var authState = await authenticationState;
+            var user = authState?.User;
+
+            if (user is not null)
+            {
+                if (user.Identity is not null && user.Identity.IsAuthenticated && user.IsInRole("User"))
+                {
+                    userName = user.Identity.Name;
+                }
+            }
+        }
+
+        try
+        {
+            incident = await apiservice.GetIncidentAsync(IncidentID);
+        }
+        catch (ApiException exception)
+        {
+            incident = null;
+        }
+        if ((incident == null) || (incident.ReporterName != userName))
+        {
+            error = $"Error! You are not authorized to see this rental or there is not a rental with id={IncidentID}";
+        }
+
+
+    }
+}
