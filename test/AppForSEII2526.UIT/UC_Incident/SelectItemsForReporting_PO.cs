@@ -13,6 +13,11 @@ namespace AppForSEII2526.UIT.UC_Incident
         By searchButton = By.Id("searchItems");
         By itemsTable = By.Id("itemsTable");
         By noItemsP = By.Id("noItemsP");
+       
+        private By ReportButton = By.Id("Report");
+
+        private IWebElement _reportButton() => _driver.FindElement(ReportButton); 
+
 
         public void SearchItems(string name, string location)
         {
@@ -39,6 +44,26 @@ namespace AppForSEII2526.UIT.UC_Incident
             } catch (NoSuchElementException e) {
                 return true;
             }
+        }
+
+        public void SelectItems(List<string> names)
+        {
+            foreach(var name in names)
+            {
+                WaitForBeingVisible(By.Id($"itemToReport_{name}"));
+                _driver.FindElement(By.Id($"itemToReport_{name}")).Click();
+            }
+        }
+
+        public void RemoveItemFromList(string name)
+        {
+            WaitForBeingVisible(By.Id($"removeItem_{name}"));
+            _driver.FindElement(By.Id($"removeItem_{name}")).Click();
+        }
+
+        public bool isReportButtonDisabled()
+        {
+            return !(_reportButton().Enabled);
         }
 
         public  SelectItemsForReporting_PO(IWebDriver driver, ITestOutputHelper output) : base(driver, output)
