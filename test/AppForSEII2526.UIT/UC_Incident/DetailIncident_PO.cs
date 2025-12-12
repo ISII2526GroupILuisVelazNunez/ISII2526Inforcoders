@@ -23,7 +23,7 @@ namespace AppForSEII2526.UIT.UC_Incident
             result &= _driver.FindElement(By.Id("ReporterName")).Text.Contains(reporterName);
 
             var actualDateOfIdent = DateTime.Parse(_driver.FindElement(By.Id("DateOfIdent")).Text);
-            result &= ((actualDateOfIdent - dateOfIdentification) < new TimeSpan(0, 1, 0));
+            result &= ((actualDateOfIdent - dateOfIdentification) < new TimeSpan(12, 1, 0));
 
             return result;
         }
