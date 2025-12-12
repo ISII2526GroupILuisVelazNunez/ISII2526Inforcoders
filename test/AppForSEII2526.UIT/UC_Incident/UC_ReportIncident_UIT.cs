@@ -102,6 +102,7 @@ namespace AppForSEII2526.UIT.UC_Incident
             System.Threading.Thread.Sleep(1000);
 
             //Assert 
+            Assert.Equal(selectItemsForReporting_PO.CheckItemCount(), "Items selected: 1");
             Assert.True(selectItemsForReporting_PO.CheckListOfSelectedItems(expectedItems));
         }
 

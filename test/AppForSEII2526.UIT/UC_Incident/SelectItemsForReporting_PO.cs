@@ -14,6 +14,7 @@ namespace AppForSEII2526.UIT.UC_Incident
         By itemsTable = By.Id("itemsTable");
         By selectedItemsList = By.Id("selectedItemsList");
         By noItemsP = By.Id("noItemsP");
+        By itemsCount = By.Id("itemsCount");
        
         private By ReportButton = By.Id("Report");
 
@@ -105,6 +106,12 @@ namespace AppForSEII2526.UIT.UC_Incident
             {
                 return false;
             }
+        }
+
+        public string CheckItemCount()
+        {
+            IWebElement element = _driver.FindElement(itemsCount);
+            return element.Text;
         }
 
         public  SelectItemsForReporting_PO(IWebDriver driver, ITestOutputHelper output) : base(driver, output)
