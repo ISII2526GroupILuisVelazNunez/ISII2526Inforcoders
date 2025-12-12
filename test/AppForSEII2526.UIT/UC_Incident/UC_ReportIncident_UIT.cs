@@ -50,6 +50,7 @@ namespace AppForSEII2526.UIT.UC_Incident
             
             //Act
             selectItemsForReporting_PO.SearchItems("fhqwhgads", "Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch"); // No item like this exists
+            System.Threading.Thread.Sleep(1000);
 
             //Assert
             Assert.False(selectItemsForReporting_PO.isTableFound());
