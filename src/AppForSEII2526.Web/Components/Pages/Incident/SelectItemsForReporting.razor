@@ -1,4 +1,4 @@
-﻿@page "/incident/selectitemsforreporting"
+﻿@page "/incidents/selectitemsforreporting"
 
 @using AppForSEII2526.Web.API
 <!-- @using AppForSEII2526.Web.Components.Shared -->
@@ -107,22 +107,9 @@
     </div>
 </div>
 
-<!--
-<div class="row">
-    <div class="col-md-3">
-        aaaaa
-    </div>
-    <div class="col-md-3">
-        bbbbb*/
-    </div>
-    <div class="col-md-3">
-        aaaaa
-    </div>
-    <div class="col-md-3">
-        ccccc
-    </div>
+<div>
+    <button class="btn btn-primary" id="DetailsButton" @onclick="@Details">Details</button>
 </div>
--->
 
 @code {
     private ICollection<ItemForReportingDTO> Items;
@@ -143,19 +130,6 @@
 
         StateHasChanged();
     }
-
-    /*
-    protected override Task OnInitializedAsync()
-        {
-        _from = (_from == new DateTime(1, 1, 1)) ?
-            DateTime.SpecifyKind(DateTime.Today.AddDays(1), DateTimeKind.Utc) :
-        _from;
-
-        _to = (_to == new DateTime(1, 1, 1)) ?
-            DateTime.SpecifyKind(DateTime.Today.AddDays(2), DateTimeKind.Utc) :
-    _to;)
-    }
-    */
 
     private string error;
     private IncidentForCreateDTO incident => incidentState.Incident;
@@ -178,6 +152,11 @@
 
     private void ReportIncident()
     {
-        navigation.NavigateTo("/Incidents/CreateIncident");
+        navigation.NavigateTo("/incidents/CreateIncident");
+    }
+
+    private void Details()
+    {
+        navigation.NavigateTo($"/incidents/detailincident/?IncidentID=1");
     }
 }
