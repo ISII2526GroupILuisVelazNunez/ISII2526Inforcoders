@@ -11,15 +11,17 @@ namespace AppForSEII2526.UIT.UC_Incident
         private SelectItemsForReporting_PO selectItemsForReporting_PO;
 
         private const int itemId1 = 1;
-        private const string itemLocation1 = "Albacete";
-        private const string itemType1 = "AAA";
+
         private const string itemName1 = "AAAA";
+        private const string itemType1 = "AAA";
+        private const string itemLocation1 = "Albacete";
         private const string itemDescription1 = "An item";
 
         private const int itemId2 = 2;
-        private const string itemLocation2 = "Maine";
-        private const string itemType2 = "BBB";
+
         private const string itemName2 = "BBBB";
+        private const string itemType2 = "BBB";
+        private const string itemLocation2 = "Maine";
         private const string itemDescription2 = "Bn btem";
 
         public UC_ReportIncident_UIT(ITestOutputHelper output) : base(output)
@@ -48,6 +50,7 @@ namespace AppForSEII2526.UIT.UC_Incident
             
             //Act
             selectItemsForReporting_PO.SearchItems("fhqwhgads", "Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch"); // No item like this exists
+            System.Threading.Thread.Sleep(1000);
 
             //Assert
             Assert.False(selectItemsForReporting_PO.isTableFound());
@@ -59,7 +62,7 @@ namespace AppForSEII2526.UIT.UC_Incident
         {
             //Arrange
             InitialStepsForSelectItems();
-            var expectedItems = new List<string[]> { new string[] { itemLocation1, itemType1, itemName1, itemDescription1 } };
+            var expectedItems = new List<string[]> { new string[] { itemName1, itemType1, itemLocation1, itemDescription1, "Add" } };
 
             //Act
             selectItemsForReporting_PO.SearchItems("AA", "");
@@ -74,13 +77,50 @@ namespace AppForSEII2526.UIT.UC_Incident
         {
             //Arrange
             InitialStepsForSelectItems();
-            var expectedItems = new List<string[]> { new string[] { itemLocation2, itemType2, itemName2, itemDescription2 } };
+            var expectedItems = new List<string[]> { new string[] { itemName2, itemType2, itemLocation2, itemDescription2, "Add" } };
 
             //Act
             selectItemsForReporting_PO.SearchItems("", "Maine");
 
             //Assert
             Assert.True(selectItemsForReporting_PO.CheckListOfItems(expectedItems));
+        }
+
+        [Fact]
+        [Trait("LevelTesting", "Functional Testing")]
+        public void UC11_5_1_modify_list()
+        {
+            //Arrange
+            InitialStepsForSelectItems();
+            var expectedItems = new List<string[]> { new string[] { itemName2, "Remove" } };
+
+
+            //Act
+            selectItemsForReporting_PO.SearchItems("", "");
+            selectItemsForReporting_PO.SelectItems(new List<string> { itemName1, itemName2 });
+            selectItemsForReporting_PO.RemoveItemFromList(itemName1);
+
+            System.Threading.Thread.Sleep(1000);
+
+            //Assert 
+            Assert.Equal(selectItemsForReporting_PO.CheckItemCount(), "Items selected: 1");
+            Assert.True(selectItemsForReporting_PO.CheckListOfSelectedItems(expectedItems));
+        }
+
+        [Fact]
+        [Trait("LevelTesting", "Functional Testing")]
+        public void UC11_4_1_no_items_selected()
+        {
+            //Arrange
+            InitialStepsForSelectItems();
+
+            //Act
+            selectItemsForReporting_PO.SearchItems("", "");
+            selectItemsForReporting_PO.SelectItems(new List<string> { itemName1 });
+            selectItemsForReporting_PO.RemoveItemFromList(itemName1);
+
+            //Assert
+            Assert.True(selectItemsForReporting_PO.isReportButtonDisabled());
         }
     }
 }

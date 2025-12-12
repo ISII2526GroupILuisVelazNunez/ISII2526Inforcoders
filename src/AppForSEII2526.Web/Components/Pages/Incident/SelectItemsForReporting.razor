@@ -11,7 +11,7 @@
 
 <h3>Select Items For Reporting</h3>
 
-<h5>Items selected: @incident.IncidentItems.Count</h5>
+<h5 id="itemsCount">Items selected: @incident.IncidentItems.Count</h5>
 
 <div class="container-fluid">
     <div class="row" hidden="@hideErrors">
@@ -24,6 +24,7 @@
         <div class="col-md-8">
             <div class="row">
                 <div class="row">
+                    <p>Filters here</p>
                     <div class="col-md-4">
                         <span> Name </span>
                         <input type="text" class="form-control" @bind="itemName" id="itemName"/>
@@ -86,7 +87,7 @@
             <br/>
             <p>Items list</p>
             <br/>
-            <div class="row" hidden="@hideItemList">
+            <div class="row" hidden="@hideItemList" id="selectedItemsList">
                 @foreach (IncidentItemDTO item in incident.IncidentItems)
                 {
                     <div class="row">
