@@ -1,0 +1,295 @@
+﻿@page "/plan/createplan"
+@using Microsoft.AspNetCore.Authorization
+@using AppForSEII2526.Web.API
+@inject AppForSEII2526APIClient apiclient
+@inject ILogger<CreatePlan> logger
+@inject PlanStateContainer planState
+@inject NavigationManager navigation
+@inject AuthenticationStateProvider authenticationStateProvider
+@*@attribute [Authorize]*@
+
+<h3>Create Plan</h3>
+
+<div class="container-fluid">
+    @* Display Global Errors *@
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            @errorMessage
+        </div>
+    }
+
+    @if (createdPlan == null)
+    {
+        @* --- STEP 5: Review Selected Classes & Fill Plan Details --- *@
+
+        <div class="row">
+            @* Left Column: Form *@
+            <div class="col-md-8">
+                <EditForm Model="@planState.Plan" OnValidSubmit="HandleValidSubmit">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="card mb-3">
+                        <div class="card-header">Plan Details</div>
+                        <div class="card-body">
+
+                            @* Name (Mandatory) *@
+                            <div class="mb-3">
+                                <label for="planName" class="form-label">Plan Name (Mandatory)</label>
+                                <InputText id="planName" class="form-control" @bind-Value="planState.Plan.Name" />
+                                <ValidationMessage For="@(() => planState.Plan.Name)" />
+                            </div>
+
+                            @* Description (Optional) *@
+                            <div class="mb-3">
+                                <label for="planDescription" class="form-label">Description (Optional)</label>
+                                <InputTextArea id="planDescription" class="form-control" @bind-Value="planState.Plan.Description" />
+                            </div>
+
+                            @* Weeks (Mandatory) *@
+                            <div class="mb-3">
+                                <label for="planWeeks" class="form-label">Number of Weeks (Mandatory)</label>
+                                <InputNumber id="planWeeks" class="form-control" @bind-Value="planState.Plan.Weeks" />
+                                <ValidationMessage For="@(() => planState.Plan.Weeks)" />
+                            </div>
+
+                            @* Health Issues (Optional) *@
+                            <div class="mb-3">
+                                <label for="healthIssues" class="form-label">Health Issues (Optional)</label>
+                                <InputTextArea id="healthIssues" class="form-control" @bind-Value="planState.Plan.HealthIssues" />
+                            </div>
+
+                            @* Payment Method (Mandatory) *@
+                            <div class="mb-3">
+                                <label for="paymentMethod" class="form-label">Payment Method (Mandatory)</label>
+                                <InputSelect id="paymentMethod" class="form-select" @bind-Value="planState.Plan.PaymentMethodId">
+                                    <option value="0">-- Select Payment Method --</option>
+                                    @if (userPaymentMethods != null)
+                                    {
+                                        @foreach (var pm in userPaymentMethods)
+                                        {
+                                            <option value="@pm.Id">@pm.Type</option>
+                                        }
+                                    }
+                                </InputSelect>
+                                @* Custom validation logic might be needed if 0 is selected *@
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-header">Class Goals</div>
+                        <div class="card-body">
+                            @* Iterate through selected classes to set goals *@
+                            @if (planState.Plan.Items != null)
+                            {
+                                @foreach (var item in planState.Plan.Items)
+                                {
+                                    var classInfo = planState.SelectedClasses.FirstOrDefault(c => c.Id == item.ClassId);
+                                    if (classInfo != null)
+                                    {
+                                        <div class="mb-2">
+                                            <label class="form-label">Goal for <strong>@classInfo.Name</strong> (@classInfo.Date.DateTime.ToShortDateString())</label>
+                                            <InputText class="form-control" @bind-Value="item.Goal" placeholder="Enter goal for this class (optional)" />
+                                        </div>
+                                    }
+                                }
+                            }
+                        </div>
+                    </div>
+
+                    @* Action Buttons *@
+                    <div class="row">
+                        <div class="col-md-6">
+                            @* Alternative Flow 3: Modify Plan *@
+                            <button type="button" class="btn btn-secondary w-100" @onclick="GoBackToSelectClasses">Modify Selected Classes</button>
+                        </div>
+                        <div class="col-md-6">
+                            @* Step 6: Save *@
+                            <button type="submit" class="btn btn-primary w-100" id="submitPlan">Save Plan</button>
+                        </div>
+                    </div>
+
+                </EditForm>
+            </div>
+
+            @* Right Column: Selected Classes Summary *@
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header bg-info text-white">Selected Classes</div>
+                    <ul class="list-group list-group-flush">
+                        @foreach (var item in planState.SelectedClasses)
+                        {
+                            <li class="list-group-item">
+                                <strong>@item.Name</strong><br />
+                                <small>@item.Date.DateTime.ToString("g")</small><br />
+                                <span class="badge bg-secondary">@item.Price.ToString("C2")</span>
+                            </li>
+                        }
+                    </ul>
+                    <div class="card-footer">
+                        <strong>Total: @planState.SelectedClasses.Sum(c => c.Price).ToString("C2")</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        @* --- STEP 7: Show Created Plan Details --- *@
+        <div class="alert alert-success" role="alert">
+            Plan created successfully!
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>@createdPlan.Name</h2>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">User</dt>
+                    <dd class="col-sm-9">@createdPlan.UserFullName</dd>
+
+                    <dt class="col-sm-3">Created Date</dt>
+                    <dd class="col-sm-9">@createdPlan.CreatedDate.DateTime.ToShortDateString()</dd>
+
+                    <dt class="col-sm-3">Weeks</dt>
+                    <dd class="col-sm-9">@createdPlan.Weeks</dd>
+
+                    <dt class="col-sm-3">Total Price</dt>
+                    <dd class="col-sm-9">@createdPlan.TotalPrice.ToString("C2")</dd>
+
+                    <dt class="col-sm-3">Description</dt>
+                    <dd class="col-sm-9">@createdPlan.Description</dd>
+
+                    <dt class="col-sm-3">Health Issues</dt>
+                    <dd class="col-sm-9">@createdPlan.HealthIssues</dd>
+                </dl>
+
+                <h4>Classes Enrolled</h4>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Class Name</th>
+                            <th>Date</th>
+                            <th>Price</th>
+                            <th>Goal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (createdPlan.PlanItems != null)
+                        {
+                            @foreach (var item in createdPlan.PlanItems)
+                            {
+                                <tr>
+                                    <td>@item.Name</td>
+                                    <td>@item.Date.DateTime.ToString("g")</td>
+                                    <td>@item.Price.ToString("C2")</td>
+                                    <td>@item.Goal</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+
+                <button class="btn btn-primary" @onclick="GoHome">Return to Home</button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    // dependencies
+    [Inject] private AppForSEII2526APIClient Apiclient { get; set; } = default!;
+    [Inject] private PlanStateContainer PlanState { get; set; } = default!;
+    [Inject] private NavigationManager Navigation { get; set; } = default!;
+    [Inject] private ILogger<CreatePlan> Logger { get; set; } = default!;
+
+    // Using simple DTO for payment method selection (assuming API doesn't have a specific endpoint for user's PMs yet,
+    // or we mock it. In a real scenario, you'd call GetPaymentMethodsForUser)
+    // For now, I'll simulate or reuse an existing DTO if available.
+    // Looking at your files, `PaymentMethodForPurchaseDetailDTO` exists.
+    private List<PaymentMethodForPurchaseDetailDTO> userPaymentMethods = new();
+
+    private string errorMessage = string.Empty;
+    private PlanForDetailDTO? createdPlan;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Alternative Flow 4: If no classes selected, redirect back
+        if (PlanState.SelectedClasses.Count == 0)
+        {
+            Navigation.NavigateTo("/plan/selectclassesforplan");
+            return;
+        }
+
+        // Initialize Plan DTO defaults if needed
+        if (PlanState.Plan.Weeks == 0) PlanState.Plan.Weeks = 1;
+
+        // Load Payment Methods (Simulated for now as I don't see a specific GetPaymentMethods endpoint in provided files)
+        // You would typically call: userPaymentMethods = await Apiclient.GetPaymentMethodsAsync(userId);
+        // I will add a dummy one so the form works for testing.
+        userPaymentMethods = new List<PaymentMethodForPurchaseDetailDTO>
+        {
+            new PaymentMethodForPurchaseDetailDTO { Id = 1, Type = "CreditCard" }, // Assuming ID 1 exists from SeedData
+            new PaymentMethodForPurchaseDetailDTO { Id = 2, Type = "PayPal" }
+        };
+    }
+
+    private void GoBackToSelectClasses()
+    {
+        // Alternative Flow 3
+        Navigation.NavigateTo("/plan/selectclassesforplan");
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        errorMessage = string.Empty;
+
+        // Alternative Flow 5: Mandatory Data Check (Validation is mostly handled by EditForm/DataAnnotations)
+        if (PlanState.Plan.PaymentMethodId == 0)
+        {
+            errorMessage = "Please select a valid payment method. (Alternative Flow 5)";
+            return;
+        }
+
+        try
+        {
+            // API Call: Step 6
+            // Note: PlanState.Plan contains the Items list populated in PlanStateContainer
+            createdPlan = await Apiclient.CreatePlanAsync(PlanState.Plan);
+
+            // Clear cart after success
+            PlanState.ClearPlanCart();
+        }
+        catch (ApiException<ProblemDetails> ex)
+        {
+            // Alternative Flow 7 (Conflict/Capacity) or 5 (Bad Request)
+            Logger.LogError(ex, "API Error creating plan");
+            if (ex.StatusCode == 409) // Conflict - Capacity
+            {
+                errorMessage = $"Capacity Error: {ex.Result.Detail} (Alternative Flow 7)";
+                // Ideally, give option to return to step 2
+            }
+            else if (ex.StatusCode == 400) // Bad Request
+            {
+                errorMessage = "Please check your input data. (Alternative Flow 5)";
+            }
+            else
+            {
+                errorMessage = "An error occurred while creating the plan.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Unexpected error creating plan");
+            errorMessage = "An unexpected error occurred.";
+        }
+    }
+
+    private void GoHome()
+    {
+        Navigation.NavigateTo("/");
+    }
+}
