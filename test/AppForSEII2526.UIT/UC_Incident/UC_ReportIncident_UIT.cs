@@ -9,6 +9,7 @@ namespace AppForSEII2526.UIT.UC_Incident
     public class UC_ReportIncident_UIT : UC_UIT
     {
         private SelectItemsForReporting_PO selectItemsForReporting_PO;
+        private DetailIncident_PO detailIncident_PO;
 
         private const int itemId1 = 1;
 
@@ -27,6 +28,7 @@ namespace AppForSEII2526.UIT.UC_Incident
         public UC_ReportIncident_UIT(ITestOutputHelper output) : base(output)
         {
             selectItemsForReporting_PO = new SelectItemsForReporting_PO(_driver, _output);
+            detailIncident_PO = new DetailIncident_PO(_driver, _output);
         }
 
         private void Precondition_perform_login()
@@ -39,6 +41,28 @@ namespace AppForSEII2526.UIT.UC_Incident
             Precondition_perform_login();
             selectItemsForReporting_PO.WaitForBeingVisible(By.Id("incidentsPage"));
             _driver.FindElement(By.Id("incidentsPage")).Click();
+        }
+
+        [Fact]
+        [Trait("LevelTesting", "Functional Testing")]
+        public void UC11_1_report_details()
+        {
+            //Arrange
+            InitialStepsForSelectItems();
+            string Title = "An incident";
+            DateTime DateOfIdentification = new DateTime(2025, 11, 11);
+            string Exercise = "Surf";
+            string ReporterName = "Elena";
+            var expectedItems = new List<string[]> { new string[] { itemName1, itemType1, itemLocation1, itemDescription1, "High" } };
+
+            //Act
+            selectItemsForReporting_PO.WaitForBeingVisible(By.Id("DetailsButton"));
+            _driver.FindElement(By.Id("DetailsButton")).Click();
+            System.Threading.Thread.Sleep(1000);
+
+            //Assert
+            Assert.True(detailIncident_PO.CheckItemsTable(expectedItems));
+            Assert.True(detailIncident_PO.CheckIncidentDetails(Title, DateOfIdentification, Exercise, ReporterName));
         }
 
         [Fact]

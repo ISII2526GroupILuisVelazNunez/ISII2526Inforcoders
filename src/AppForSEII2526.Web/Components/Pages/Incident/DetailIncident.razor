@@ -45,6 +45,7 @@
             @foreach (IncidentItemDTO item in incident.IncidentItems)
             {
                 <tr id="RentalItem_@item.Name">
+                    <td>@item.Name</td>
                     <td>@item.Type</td>
                     <td>@item.Location</td>
                     <td>@item.Description</td>
