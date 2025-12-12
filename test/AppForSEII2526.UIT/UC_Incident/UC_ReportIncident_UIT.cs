@@ -43,6 +43,14 @@ namespace AppForSEII2526.UIT.UC_Incident
 
         [Fact]
         [Trait("LevelTesting", "Functional Testing")]
+        public void UC11_1_report_details()
+        {
+            //Arrange
+            Precondition_perform_login();
+        }
+
+        [Fact]
+        [Trait("LevelTesting", "Functional Testing")]
         public void UC11_2_no_items_available()
         {
             //Arrange
