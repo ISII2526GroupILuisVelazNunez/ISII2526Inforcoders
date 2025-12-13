@@ -13,29 +13,31 @@
 
 <h3>Please fill in this form to create your report</h3>
 
-<EditForm Model="incident" OnValidSubmit="OpenDialog">
+<EditForm Model="incident" OnValidSubmit="ProcessRequest">
     <DataAnnotationsValidator/>
     <ValidationSummary/>
     <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <label for="Title">Title</label>
             <InputText @bind-Value="incident.Title" class="form-control" id="Title" />
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <label for="Exercise">Exercise</label>
             <InputText @bind-Value="incident.Exercise" class="form-control" id="Exercise" />
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
+            <label for="ReporterName">Reporter name</label>
+            <InputText @bind-Value="incident.ReporterName" class="form-control" id="ReporterNames" />
+        </div>
+        <div class="col-md-3">
             <label for="DateOfIdentification">Date of identification</label>
             <InputDate @bind-Value="incident.DateOfIdentification" class="form-control" id="DateOfIdentification" />
         </div>
     </div>
     <br />
-    <div class="row">
-        <button class="btn btn-primary" type="submit" id="Submit">
-            Submit report
-        </button>
-    </div>
+    <button class="btn btn-primary" type="submit" id="Submit">
+        Submit report
+    </button>
 </EditForm>
 <br />
 
@@ -75,82 +77,61 @@
 <br />
 <div class="row">
     <button class="btn btn-outline-primary" type="submit" @onclick="ModifyIncidentItems" id="ModifyItems">
-        Modify movies
+        Modify items
     </button>
 </div>
-
-@if (DialogIsOpen)
-{
-    <Dialog Caption="Report incident"
-    Message="Do you want to submit this report?"
-    OnClose="@OnDialogClose"
-    Type=Dialog.Category.SaveNot>
-    </Dialog>
-}
-@*a modal popup dialog to inform user about problems*@
-@if (DialogOKIsOpen)
-{
-    <Dialog Caption="Error!"
-    Message="@DialogOKMessage"
-    OnClose="@OnDialogOKClose"
-    Type=Dialog.Category.Okay>
-    </Dialog>
-}
-
+<div class="row">
+    <p>@errors</p>
+</div>
 
 @code {
     private IncidentForCreateDTO incident => incidentState.Incident;
 
-    private async Task OnDialogClose(bool isOk)
+    public string errors = "";
+
+    private async Task ProcessRequest()
     {
-        OkCancel = isOk;
-        DialogIsOpen = false;
-        if (OkCancel)
+        if(incident.IncidentItems.Count <= 0) // This should be impossible
         {
-            if(incident.IncidentItems.Count <= 0) // This should be impossible
-            {
-                ModifyIncidentItems();
-            }
-
-            try {
-
-
-
-            } catch (AppForSEII2526.Web.API.ApiException<AppForSEII2526.Web.API.ValidationProblemDetails> apiexceptionvalidation) {
-                string message = "Error while creating the report... Try again later";
-
-                if (apiexceptionvalidation.Result.Errors.Values != null)
-                {
-                    message = "";
-                    foreach (var errors in apiexceptionvalidation.Result.Errors.Values)
-                        message = string.Join("(*) ", message, string.Join(" (*) ", errors));
-                }
-                OpenDialogOK(message);
-
-            } catch (AppForSEII2526.Web.API.ApiException) {
-                string message = "Error while processing your request, please try again later!";
-                OpenDialogOK(message);
-            }
+            ModifyIncidentItems();
         }
-    }
 
-    private bool DialogIsOpen;
-    private bool OkCancel = false; //ok = true --- cancel = false
-    private void OpenDialog()
-    {
-        DialogIsOpen = true;
-    }
+        try {
+            AppForSEII2526.Web.API.IncidentForCreateDTO incidentDTO = new API.IncidentForCreateDTO()
+            {
+                IncidentItems = incident.IncidentItems.Select(ii => new API.IncidentItemDTO()
+                {
+                    ItemForExerciseId = ii.ItemForExerciseId, IncidentPriority = ii.IncidentPriority,
+                    Location = ii.Location, Description = ii.Description, Name = ii.Name, Type = ii.Type
+                } ).ToList(),
 
-    private bool DialogOKIsOpen;
-    private string DialogOKMessage;
-    private void OpenDialogOK(string message)
-    {
-        DialogOKIsOpen = true;
-        DialogOKMessage = message;
-    }
-    private async Task OnDialogOKClose()
-    {
-        DialogOKIsOpen = false;
+                IncidentState = IncidentState.Submitted,
+                Title = incident.Title,
+                DateOfIdentification = incident.DateOfIdentification,
+                Exercise = incident.Exercise, 
+                ReporterName = incident.ReporterName,
+            };
+
+            var reported = await apiservice.CreateIncidentAsync(incidentDTO);
+            incidentState.IncidentProcessed();
+            Navigation.NavigateTo($"incidents/detailincidents/?Incident_ID={reported.Id}");
+
+
+        } catch (AppForSEII2526.Web.API.ApiException<AppForSEII2526.Web.API.ValidationProblemDetails> apiexceptionvalidation) {
+            string message = "Error while creating the report... Try again later";
+
+            if (apiexceptionvalidation.Result.Errors.Values != null)
+            {
+                message = "";
+                foreach (var errors in apiexceptionvalidation.Result.Errors.Values)
+                    message = string.Join("(*) ", message, string.Join(" (*) ", errors));
+            }
+            errors = message;
+
+        } catch (AppForSEII2526.Web.API.ApiException) {
+            string message = "Error while processing your request, please try again later!";
+            errors = message;
+        }
     }
 
     protected override void OnInitialized()
