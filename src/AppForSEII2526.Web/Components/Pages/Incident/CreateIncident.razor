@@ -30,12 +30,14 @@
             <InputDate @bind-Value="incident.DateOfIdentification" class="form-control" id="DateOfIdentification" />
         </div>
     </div>
+    <br />
     <div class="row">
         <button class="btn btn-primary" type="submit" id="Submit">
             Submit report
         </button>
     </div>
 </EditForm>
+<br />
 
 <h4>Items reported</h4>
 
@@ -53,7 +55,7 @@
         <tbody>
             @foreach (var item in incident.IncidentItems)
             {
-                <tr id="MovieData_@item.Name">
+                <tr id="ItemData_@item.Name">
                     <td>@item.Name</td>
                     <td>@item.Type</td>
                     <td>@item.Location</td>
@@ -70,21 +72,95 @@
         </tbody>
     </table>
 </div>
+<br />
+<div class="row">
+    <button class="btn btn-outline-primary" type="submit" @onclick="ModifyIncidentItems" id="ModifyItems">
+        Modify movies
+    </button>
+</div>
+
+@if (DialogIsOpen)
+{
+    <Dialog Caption="Report incident"
+    Message="Do you want to submit this report?"
+    OnClose="@OnDialogClose"
+    Type=Dialog.Category.SaveNot>
+    </Dialog>
+}
+@*a modal popup dialog to inform user about problems*@
+@if (DialogOKIsOpen)
+{
+    <Dialog Caption="Error!"
+    Message="@DialogOKMessage"
+    OnClose="@OnDialogOKClose"
+    Type=Dialog.Category.Okay>
+    </Dialog>
+}
 
 
 @code {
     private IncidentForCreateDTO incident => incidentState.Incident;
 
+    private async Task OnDialogClose(bool isOk)
+    {
+        OkCancel = isOk;
+        DialogIsOpen = false;
+        if (OkCancel)
+        {
+            if(incident.IncidentItems.Count <= 0) // This should be impossible
+            {
+                ModifyIncidentItems();
+            }
+
+            try {
+
+
+
+            } catch (AppForSEII2526.Web.API.ApiException<AppForSEII2526.Web.API.ValidationProblemDetails> apiexceptionvalidation) {
+                string message = "Error while creating the report... Try again later";
+
+                if (apiexceptionvalidation.Result.Errors.Values != null)
+                {
+                    message = "";
+                    foreach (var errors in apiexceptionvalidation.Result.Errors.Values)
+                        message = string.Join("(*) ", message, string.Join(" (*) ", errors));
+                }
+                OpenDialogOK(message);
+
+            } catch (AppForSEII2526.Web.API.ApiException) {
+                string message = "Error while processing your request, please try again later!";
+                OpenDialogOK(message);
+            }
+        }
+    }
+
     private bool DialogIsOpen;
-    private bool OkCancel = false;
+    private bool OkCancel = false; //ok = true --- cancel = false
     private void OpenDialog()
     {
         DialogIsOpen = true;
+    }
+
+    private bool DialogOKIsOpen;
+    private string DialogOKMessage;
+    private void OpenDialogOK(string message)
+    {
+        DialogOKIsOpen = true;
+        DialogOKMessage = message;
+    }
+    private async Task OnDialogOKClose()
+    {
+        DialogOKIsOpen = false;
     }
 
     protected override void OnInitialized()
     {
         // Setting the default value of the input field to december 2025
         incident.DateOfIdentification = new DateTime(2025, 12, 1);
+    }
+
+    private void ModifyIncidentItems()
+    {
+        Navigation.NavigateTo("/incidents/selectitemsforreporting");
     }
 }
