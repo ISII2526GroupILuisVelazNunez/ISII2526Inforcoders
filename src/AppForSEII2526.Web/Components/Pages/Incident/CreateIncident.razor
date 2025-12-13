@@ -1,7 +1,55 @@
 ﻿@page "/incidents/createincident"
 
+@using AppForSEII2526.Web.API
+@using System.ComponentModel.DataAnnotations
+
+@using System.Text.Json
+@inject AppForSEII2526.Web.API.AppForSEII2526APIClient apiservice
+
+
+@inject IncidentStateContainer incidentState
+@inject NavigationManager Navigation
+
+
 <h3>Please fill in this form to create your report</h3>
 
-@code {
+<EditForm Model="incident" OnValidSubmit="OpenDialog">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+    <div class="row">
+        <div class="col-md-4">
+            <label for="Title">Title</label>
+            <InputText @bind-Value="incident.Title" class="form-control" id="Title" />
+        </div>
+        <div class="col-md-4">
+            <label for="Exercise">Exercise</label>
+            <InputText @bind-Value="incident.Exercise" class="form-control" id="Exercise" />
+        </div>
+        <div class="col-md-4">
+            <label for="DateOfIdentification">Date of identification</label>
+            <InputDate @bind-Value="incident.DateOfIdentification" class="form-control" id="DateOfIdentification" />
+        </div>
+    </div>
+    <div class="row">
+        <button class="btn btn-primary" type="submit" id="Submit">
+            Submit report
+        </button>
+    </div>
+</EditForm>
 
+@code {
+    private IncidentForCreateDTO incident => incidentState.Incident;
+
+    private bool DialogIsOpen;
+    private bool OkCancel = false;
+    private void OpenDialog()
+    {
+        DialogIsOpen = true;
+    }
+
+    protected override void OnInitialized()
+    {
+        // Setting the default value of the input field to december 2025
+        incident.DateOfIdentification = new DateTime(2025, 12, 1);
+    }
 }
