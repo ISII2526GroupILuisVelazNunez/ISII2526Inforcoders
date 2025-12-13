@@ -37,6 +37,41 @@
     </div>
 </EditForm>
 
+<h4>Items reported</h4>
+
+<div class="mh-100 table-responsive">
+    <table class="table table-condensed table-hover" id="TableOfRentalItems">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Location</th>
+                <th>Description</th>
+                <th>Priority level</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in incident.IncidentItems)
+            {
+                <tr id="MovieData_@item.Name">
+                    <td>@item.Name</td>
+                    <td>@item.Type</td>
+                    <td>@item.Location</td>
+                    <td>@item.Description</td>
+                    <td>
+                        <InputSelect @bind-Value="item.IncidentPriority" class="form-select" id="@($"priority_{item.ItemForExerciseId}")">
+                            <option value="@IncidentPriority.High default">High</option>
+                            <option value="@IncidentPriority.Medium">Medium</option>
+                            <option value="@IncidentPriority.Low">Low</option>
+                        </InputSelect>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+
 @code {
     private IncidentForCreateDTO incident => incidentState.Incident;
 
