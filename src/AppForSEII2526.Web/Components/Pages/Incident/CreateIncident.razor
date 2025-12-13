@@ -1,0 +1,147 @@
+﻿@page "/incidents/createincident"
+
+@using AppForSEII2526.Web.API
+@using System.ComponentModel.DataAnnotations
+
+@using System.Text.Json
+@inject AppForSEII2526.Web.API.AppForSEII2526APIClient apiservice
+
+
+@inject IncidentStateContainer incidentState
+@inject NavigationManager Navigation
+
+
+<h3>Please fill in this form to create your report</h3>
+
+<EditForm Model="incident" OnValidSubmit="ProcessRequest">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+    <div class="row">
+        <div class="col-md-3">
+            <label for="Title">Title</label>
+            <InputText @bind-Value="incident.Title" class="form-control" id="Title" />
+        </div>
+        <div class="col-md-3">
+            <label for="Exercise">Exercise</label>
+            <InputText @bind-Value="incident.Exercise" class="form-control" id="Exercise" />
+        </div>
+        <div class="col-md-3">
+            <label for="ReporterName">Reporter name</label>
+            <InputText @bind-Value="incident.ReporterName" class="form-control" id="ReporterNames" />
+        </div>
+        <div class="col-md-3">
+            <label for="DateOfIdentification">Date of identification</label>
+            <InputDate @bind-Value="incident.DateOfIdentification" class="form-control" id="DateOfIdentification" />
+        </div>
+    </div>
+    <br />
+    <button class="btn btn-primary" type="submit" id="Submit">
+        Submit report
+    </button>
+</EditForm>
+<br />
+
+<h4>Items reported</h4>
+
+<div class="mh-100 table-responsive">
+    <table class="table table-condensed table-hover" id="TableOfRentalItems">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Location</th>
+                <th>Description</th>
+                <th>Priority level</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in incident.IncidentItems)
+            {
+                <tr id="ItemData_@item.Name">
+                    <td>@item.Name</td>
+                    <td>@item.Type</td>
+                    <td>@item.Location</td>
+                    <td>@item.Description</td>
+                    <td>
+                        <InputSelect @bind-Value="item.IncidentPriority" class="form-select" id="@($"priority_{item.ItemForExerciseId}")">
+                            <option value="@IncidentPriority.High default">High</option>
+                            <option value="@IncidentPriority.Medium">Medium</option>
+                            <option value="@IncidentPriority.Low">Low</option>
+                        </InputSelect>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<br />
+<div class="row">
+    <button class="btn btn-outline-primary" type="submit" @onclick="ModifyIncidentItems" id="ModifyItems">
+        Modify items
+    </button>
+</div>
+<div class="row">
+    <p>@errors</p>
+</div>
+
+@code {
+    private IncidentForCreateDTO incident => incidentState.Incident;
+
+    public string errors = "";
+
+    private async Task ProcessRequest()
+    {
+        if(incident.IncidentItems.Count <= 0) // This should be impossible
+        {
+            ModifyIncidentItems();
+        }
+
+        try {
+            AppForSEII2526.Web.API.IncidentForCreateDTO incidentDTO = new API.IncidentForCreateDTO()
+            {
+                IncidentItems = incident.IncidentItems.Select(ii => new API.IncidentItemDTO()
+                {
+                    ItemForExerciseId = ii.ItemForExerciseId, IncidentPriority = ii.IncidentPriority,
+                    Location = ii.Location, Description = ii.Description, Name = ii.Name, Type = ii.Type
+                } ).ToList(),
+
+                IncidentState = IncidentState.Submitted,
+                Title = incident.Title,
+                DateOfIdentification = incident.DateOfIdentification,
+                Exercise = incident.Exercise, 
+                ReporterName = incident.ReporterName,
+            };
+
+            var reported = await apiservice.CreateIncidentAsync(incidentDTO);
+            incidentState.IncidentProcessed();
+            Navigation.NavigateTo($"incidents/detailincidents/?Incident_ID={reported.Id}");
+
+
+        } catch (AppForSEII2526.Web.API.ApiException<AppForSEII2526.Web.API.ValidationProblemDetails> apiexceptionvalidation) {
+            string message = "Error while creating the report... Try again later";
+
+            if (apiexceptionvalidation.Result.Errors.Values != null)
+            {
+                message = "";
+                foreach (var errors in apiexceptionvalidation.Result.Errors.Values)
+                    message = string.Join("(*) ", message, string.Join(" (*) ", errors));
+            }
+            errors = message;
+
+        } catch (AppForSEII2526.Web.API.ApiException) {
+            string message = "Error while processing your request, please try again later!";
+            errors = message;
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        // Setting the default value of the input field to december 2025
+        incident.DateOfIdentification = new DateTime(2025, 12, 1);
+    }
+
+    private void ModifyIncidentItems()
+    {
+        Navigation.NavigateTo("/incidents/selectitemsforreporting");
+    }
+}
