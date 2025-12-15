@@ -10,6 +10,7 @@ namespace AppForSEII2526.UIT.UC_Incident
     {
         private SelectItemsForReporting_PO selectItemsForReporting_PO;
         private DetailIncident_PO detailIncident_PO;
+        private CreateIncident_PO createIncident_PO;
 
         private const int itemId1 = 1;
 
@@ -25,10 +26,16 @@ namespace AppForSEII2526.UIT.UC_Incident
         private const string itemLocation2 = "Maine";
         private const string itemDescription2 = "Bn btem";
 
+        // Create incident for the exam
+        private string incidentTitle = "This title was created during the exam";
+        private string incidentExercise = "Volleyball";
+        private string incidentReporterName = "Elena Navarro";
+
         public UC_ReportIncident_UIT(ITestOutputHelper output) : base(output)
         {
             selectItemsForReporting_PO = new SelectItemsForReporting_PO(_driver, _output);
             detailIncident_PO = new DetailIncident_PO(_driver, _output);
+            createIncident_PO = new CreateIncident_PO(_driver, _output);
         }
 
         private void Precondition_perform_login()
@@ -154,6 +161,7 @@ namespace AppForSEII2526.UIT.UC_Incident
             //Arrange
             InitialStepsForSelectItems();
 
+
             //Act
 
             // 1) Add an item
@@ -170,8 +178,13 @@ namespace AppForSEII2526.UIT.UC_Incident
             selectItemsForReporting_PO.RemoveItemFromList(itemName1);
 
             // Continue the BF
+            selectItemsForReporting_PO.Continue();
+
+            createIncident_PO.fill_report_data(incidentTitle, incidentExercise, incidentReporterName);
+            createIncident_PO.Submit_Report();
 
 
+            //Assert
             Assert.True(true);
         }
     }
