@@ -17,13 +17,14 @@ namespace AppForSEII2526.UIT.UC_Incident
 
         public void fill_report_data(string title, string exercise, string reporterName)
         {
+
             WaitForBeingClickable(titleField);
             _driver.FindElement(titleField).SendKeys(title);
 
-            WaitForBeingClickable(exerciseField);
+            //WaitForBeingClickable(exerciseField);
             _driver.FindElement(exerciseField).SendKeys(exercise);
 
-            WaitForBeingClickable(reporterNameField);
+            //WaitForBeingClickable(reporterNameField);
             _driver.FindElement(reporterNameField).SendKeys(reporterName);
         }
 
