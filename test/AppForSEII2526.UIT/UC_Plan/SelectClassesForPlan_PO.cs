@@ -34,6 +34,19 @@
             // Wait for table to update/load
             Thread.Sleep(1500);
         }
+        public void NormalSearch(string name)
+        {
+            WaitForBeingVisible(inputClassName);
+            _driver.FindElement(inputClassName).Clear();
+            _driver.FindElement(inputClassName).SendKeys(name);
+
+            WaitForBeingClickable(searchClassesButton);
+
+            new Actions(_driver).MoveToElement(_driver.FindElement(searchClassesButton)).Perform();
+
+            _driver.FindElement(searchClassesButton).Click();
+
+        }
 
         public void SelectClass(string className)
         {
@@ -118,6 +131,15 @@
         {
             var btn = _driver.FindElement(continueToCreatePlanButton);
             return btn.Enabled;
+        }
+
+        public void RemoveClass(string className)
+        {
+            var buttons = $"removeClass_{className}";
+            WaitForBeingClickable(By.Id(buttons));
+            var btn = _driver.FindElement(By.Id(buttons));
+            new Actions(_driver).MoveToElement(btn).Perform();
+            btn.Click();
         }
     }
 }
