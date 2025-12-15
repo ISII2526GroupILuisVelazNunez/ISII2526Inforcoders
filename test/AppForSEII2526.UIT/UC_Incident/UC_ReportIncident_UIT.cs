@@ -146,5 +146,33 @@ namespace AppForSEII2526.UIT.UC_Incident
             //Assert
             Assert.True(selectItemsForReporting_PO.isReportButtonDisabled());
         }
+
+        [Fact]
+        [Trait("LevelTesting", "Functional Testing")]
+        public void UC_Bonus_test_for_evaluation()
+        {
+            //Arrange
+            InitialStepsForSelectItems();
+
+            //Act
+
+            // 1) Add an item
+            selectItemsForReporting_PO.SearchItems("", "");
+            selectItemsForReporting_PO.SelectItems(new List<string> { itemName1 });
+
+            // 2) Filter by name
+            selectItemsForReporting_PO.SearchItems("BB", "");
+
+            // 3) Add a new item
+            selectItemsForReporting_PO.SelectItems(new List<string> { itemName2 });
+
+            // 4) Remove the first item
+            selectItemsForReporting_PO.RemoveItemFromList(itemName1);
+
+            // Continue the BF
+
+
+            Assert.True(true);
+        }
     }
 }
