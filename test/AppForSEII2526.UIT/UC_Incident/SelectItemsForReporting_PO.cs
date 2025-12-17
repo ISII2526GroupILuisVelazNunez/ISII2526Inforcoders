@@ -114,6 +114,11 @@ namespace AppForSEII2526.UIT.UC_Incident
             return element.Text;
         }
 
+        public void Continue()
+        {
+            _driver.FindElement(ReportButton).Click();
+        }
+
         public  SelectItemsForReporting_PO(IWebDriver driver, ITestOutputHelper output) : base(driver, output)
         {
         }
