@@ -1,4 +1,5 @@
-﻿using AppForSEII2526.UIT.Plan; 
+﻿using AppForSEII2526.UIT.Plan;
+using OpenQA.Selenium.DevTools.V141.Network;
 namespace AppForSEII2526.UIT.UC_Plan
 {
     public class UC_CreatePlan_UIT : UC_UIT
@@ -104,6 +105,42 @@ namespace AppForSEII2526.UIT.UC_Plan
             // Should be back on Select Classes page (Step 2)
             Assert.True(selectClasses_PO.IsTableVisible(), "Should have returned to the Select Classes table");
             Assert.Contains("selectclassesforplan", _driver.Url.ToLower());
+        }
+
+
+
+        [Fact]
+        [Trait("LevelTesting", "Functional Testing")]
+        public void UC_CreatePlan_Sprint3()
+        {
+            // Arrange
+            Precondition_perform_login();
+            _driver.Navigate().GoToUrl(_URI + "plan/selectclassesforplan");
+            string class1 = "yoga";
+            string class2 = "karate";
+
+
+            // Act
+            selectClasses_PO.NormalSearch("");
+            selectClasses_PO.SelectClass(class1);
+            selectClasses_PO.NormalSearch(class2);
+            selectClasses_PO.SelectClass(class2);
+
+
+            selectClasses_PO.RemoveClass(class1);
+
+
+            // Assert 
+
+            Assert.True(selectClasses_PO.IsContinueButtonEnabled(), "Continue button should be enabled");
+            _driver.FindElement(By.Id("continueToCreatePlanButton")).Click();
+
+            createPlan_PO.FillPlanDetails(validPlanName, validDescription, validWeeks, validHealth, validPaymentId);
+            createPlan_PO.ClickSavePlan();
+
+            
+            Assert.True(createPlan_PO.CheckSuccessMessage(), "Success message should be visible");
+            Assert.True(createPlan_PO.CheckPlanDetailsVisible("karate"), "Only karate Should appear");
         }
     }
 }
