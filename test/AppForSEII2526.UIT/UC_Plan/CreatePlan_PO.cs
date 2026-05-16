@@ -28,7 +28,11 @@
 
         public void PressSavePlan()
         {
-            _submitButton().Click();
+            var btn = _driver.FindElement(By.Id("submitPlan"));
+            // scrolling until the button is visible
+            ((IJavaScriptExecutor)_driver).ExecuteScript("arguments[0].scrollIntoView(true);", btn);
+            System.Threading.Thread.Sleep(500);
+            btn.Click();
         }
 
         public bool CheckValidationError(string expectedError)

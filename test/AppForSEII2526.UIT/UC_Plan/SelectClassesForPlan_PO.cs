@@ -18,9 +18,24 @@
         public void FilterClasses(string className, string date)
         {
             WaitForBeingVisible(_inputClassNameBy);
+
+            // filling name
             _inputClassName().Clear();
             _inputClassName().SendKeys(className);
+
+            // select all from date, clear and fill in
+            _inputFromDate().SendKeys(Keys.Control + "a");
+            _inputFromDate().SendKeys(Keys.Backspace);
             _inputFromDate().SendKeys(date);
+
+            _searchButton().Click();
+        }
+
+        public void FilterByNameOnly(string className)
+        {
+            WaitForBeingVisible(_inputClassNameBy);
+            _inputClassName().Clear();
+            _inputClassName().SendKeys(className);
             _searchButton().Click();
         }
 
