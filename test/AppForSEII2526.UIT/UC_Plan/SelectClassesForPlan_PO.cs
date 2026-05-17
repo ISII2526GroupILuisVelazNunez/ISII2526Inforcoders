@@ -1,145 +1,58 @@
-﻿namespace AppForSEII2526.UIT.Plan
+﻿namespace AppForSEII2526.UIT.UC_Plan
 {
     public class SelectClassesForPlan_PO : PageObject
     {
-        private By inputClassName = By.Id("inputClassName");
-        private By inputFromDate = By.Id("fromDate");
-        private By searchClassesButton = By.Id("searchClasses");
-        private By tableOfClasses = By.Id("TableOfClasses");
-        private By alertWarning = By.CssSelector(".alert.alert-warning");
-        private By totalPlanPrice = By.Id("TotalPlanPrice");
-        private By continueToCreatePlanButton = By.Id("continueToCreatePlanButton");
 
-        public SelectClassesForPlan_PO(IWebDriver driver, ITestOutputHelper output) : base(driver, output)
+        
+        private By _inputClassNameBy = By.Id("inputClassName");
+        private IWebElement _inputClassName() => _driver.FindElement(_inputClassNameBy);
+        private IWebElement _inputFromDate() => _driver.FindElement(By.Id("fromDate"));
+        private IWebElement _searchButton() => _driver.FindElement(By.Id("searchClasses"));
+        private IWebElement _continueButton() => _driver.FindElement(By.Id("continueToCreatePlanButton"));
+
+        public SelectClassesForPlan_PO(IWebDriver driver, ITestOutputHelper output)
+            : base(driver, output)
         {
         }
 
-        public void SearchClasses(string name, DateTime date)
+        public void FilterClasses(string className, string date)
         {
-            WaitForBeingVisible(inputClassName);
-            _driver.FindElement(inputClassName).Clear();
-            _driver.FindElement(inputClassName).SendKeys(name);
+            WaitForBeingVisible(_inputClassNameBy);
 
-            // Robust Date Entry
-            var dateInput = _driver.FindElement(inputFromDate);
-            dateInput.SendKeys(date.ToString("dd-MM-yyyy"));
+            // filling name
+            _inputClassName().Clear();
+            _inputClassName().SendKeys(className);
 
-            WaitForBeingClickable(searchClassesButton);
+            // select all from date, clear and fill in
+            _inputFromDate().SendKeys(Keys.Control + "a");
+            _inputFromDate().SendKeys(Keys.Backspace);
+            _inputFromDate().SendKeys(date);
 
-            // Scroll to button to ensure visibility
-            new Actions(_driver).MoveToElement(_driver.FindElement(searchClassesButton)).Perform();
-
-            _driver.FindElement(searchClassesButton).Click();
-
-            // Wait for table to update/load
-            Thread.Sleep(1500);
+            _searchButton().Click();
         }
-        public void NormalSearch(string name)
+
+        public void FilterByNameOnly(string className)
         {
-            WaitForBeingVisible(inputClassName);
-            _driver.FindElement(inputClassName).Clear();
-            _driver.FindElement(inputClassName).SendKeys(name);
-
-            WaitForBeingClickable(searchClassesButton);
-
-            new Actions(_driver).MoveToElement(_driver.FindElement(searchClassesButton)).Perform();
-
-            _driver.FindElement(searchClassesButton).Click();
-
+            WaitForBeingVisible(_inputClassNameBy);
+            _inputClassName().Clear();
+            _inputClassName().SendKeys(className);
+            _searchButton().Click();
         }
 
         public void SelectClass(string className)
         {
-            // IMPROVED: Case-insensitive ID matching
-            // 1. Find all buttons whose ID starts with 'classToSelect_'
-            var buttons = _driver.FindElements(By.CssSelector("button[id^='classToSelect_']"));
-            IWebElement targetButton = null;
-
-            // 2. Loop through them and check if the name part matches 'className' ignoring case
-            foreach (var btn in buttons)
-            {
-                var id = btn.GetAttribute("id");
-                // Remove the prefix to get the class name (e.g., "classToSelect_yoga" -> "yoga")
-                var namePart = id.Replace("classToSelect_", "");
-
-                if (string.Equals(namePart, className, StringComparison.OrdinalIgnoreCase))
-                {
-                    targetButton = btn;
-                    break;
-                }
-            }
-
-            // 3. Fallback: if not found by soft match, try exact ID (this will throw the standard error if missing)
-            if (targetButton == null)
-            {
-                targetButton = _driver.FindElement(By.Id($"classToSelect_{className}"));
-            }
-
-            // Scroll to the element
-            new Actions(_driver).MoveToElement(targetButton).Perform();
-
-            // Wait for it to be clickable using the ID we actually found
-            var foundId = targetButton.GetAttribute("id");
-            WaitForBeingClickable(By.Id(foundId));
-
-            targetButton.Click();
-
-            // Wait for UI to update (Cart appearing)
-            Thread.Sleep(500);
+            // dynamic id classToSelect_@classItem.Name
+            _driver.FindElement(By.Id("classToSelect_" + className)).Click();
         }
 
-        public bool CheckListOfClasses(List<string[]> expectedClasses)
+        public void PressContinue()
         {
-            return CheckBodyTable(expectedClasses, tableOfClasses);
+            _continueButton().Click();
         }
 
-        public bool IsTableVisible()
+        public bool CheckTableOfClasses(List<string[]> expectedClasses)
         {
-            try
-            {
-                var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(2));
-                wait.Until(ExpectedConditions.ElementIsVisible(tableOfClasses));
-                return true;
-            }
-            catch (WebDriverTimeoutException)
-            {
-                return false;
-            }
-        }
-
-        public bool CheckAlertMessage(string expectedMessage)
-        {
-            try
-            {
-                WaitForBeingVisible(alertWarning);
-                var text = _driver.FindElement(alertWarning).Text;
-                return text.Contains(expectedMessage);
-            }
-            catch (WebDriverTimeoutException)
-            {
-                return false;
-            }
-        }
-
-        public string GetTotalPrice()
-        {
-            WaitForBeingVisible(totalPlanPrice);
-            return _driver.FindElement(totalPlanPrice).Text;
-        }
-
-        public bool IsContinueButtonEnabled()
-        {
-            var btn = _driver.FindElement(continueToCreatePlanButton);
-            return btn.Enabled;
-        }
-
-        public void RemoveClass(string className)
-        {
-            var buttons = $"removeClass_{className}";
-            WaitForBeingClickable(By.Id(buttons));
-            var btn = _driver.FindElement(By.Id(buttons));
-            new Actions(_driver).MoveToElement(btn).Perform();
-            btn.Click();
+            return CheckBodyTable(expectedClasses, By.Id("TableOfClasses"));
         }
     }
 }
