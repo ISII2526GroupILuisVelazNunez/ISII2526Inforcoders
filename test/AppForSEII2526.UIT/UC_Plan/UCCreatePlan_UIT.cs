@@ -300,5 +300,33 @@ namespace AppForSEII2526.UIT.UC_Plan
 
             Assert.True(createPlan_PO.CheckValidationError("Payment") || createPlan_PO.CheckValidationError("required"), "Payment validation missing.");
         }
+
+        // --- EXTRAORDINARY EVALUATION ---
+
+        [Fact]
+        [Trait("LevelTesting", "Functional Testing")]
+        public void UC1_12_Sce9_ExtraordinaryEvaluation()
+        {
+            InitialStepsForCreatePlan();
+            string todayDate = DateTime.Today.ToString("dd/MM/yyyy");
+            string planName = GenerateUniquePlanName("MixedPlan");
+            selectClasses_PO.FilterByNameOnly("Yoga");
+            Thread.Sleep(1500);
+            selectClasses_PO.SelectClass(class1Name);
+            Thread.Sleep(1000);
+            selectClasses_PO.FilterByNameOnly("Thai");
+            Thread.Sleep(1500);
+            selectClasses_PO.SelectClass(class2Name);
+            Thread.Sleep(1000);
+            selectClasses_PO.RemoveClass(class2Name);
+            Thread.Sleep(1000);
+            selectClasses_PO.PressContinue();
+            Thread.Sleep(1500);
+            createPlan_PO.FillInPlanInfo(planName, 4, "CreditCard");
+            createPlan_PO.PressSavePlan();
+            Thread.Sleep(2000);
+            Assert.True(planDetails_PO.CheckDetailsInfo(planName), $"Plan name: '{planName}' doesn´t match.");
+            Assert.True(planDetails_PO.CheckDetailsInfo("4"), "Total price isn´t 4.");
+        }
     }
 }
