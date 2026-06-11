@@ -81,7 +81,11 @@ namespace AppForSEII2526.API.Controllers
                         return Conflict($"Class '{classToEnroll.Name}' does not have enough capacity. Please modify your selection.");
                     }
 
-                    // add price each class
+                    // add price each class and we check price first
+                    if (classToEnroll.Price == 0)
+                    {
+                        return BadRequest("Error! You cannot select classes whose price is 0.");
+                    }
                     totalPrice += classToEnroll.Price;
 
                     // create PlanItem entity

@@ -9,6 +9,7 @@ namespace AppForSEII2526.UT.PlansController_test
         // creating seeded entities
         private readonly Class classWithCapacity; // id 1
         private readonly Class classFull;         // id 2
+        private readonly Class classFree;         // id 3
         private readonly PaymentMethod paymentMethod; // id 1 
         private readonly ApplicationUser user;
 
@@ -27,8 +28,9 @@ namespace AppForSEII2526.UT.PlansController_test
             // creating classes with typeitem constructor
             classWithCapacity = new Class("Yoga", DateTime.Now.AddDays(5), 10, 14.99m, new List<TypeItem> { typeItems[0] });
             classFull = new Class("Spinning", DateTime.Now.AddDays(3), 1, 19.99m, new List<TypeItem> { typeItems[1] });
-            _context.Classes.AddRange(classWithCapacity, classFull);
-            _context.SaveChanges(); // Yoga id 1, Spinning id 2
+            classFree = new Class("Thai", DateTime.Now.AddDays(3), 10, 0.00m, new List<TypeItem> { typeItems[0] });
+            _context.Classes.AddRange(classWithCapacity, classFull, classFree);
+            _context.SaveChanges(); // Yoga id 1, Spinning id 2, Thai id 3
 
             // create user
             user = new ApplicationUser("Test", "User")
@@ -232,6 +234,36 @@ namespace AppForSEII2526.UT.PlansController_test
             Assert.Equal(409, conflictResult.StatusCode);
             // Check the exact error message from your controller
             Assert.Equal($"Class '{classFull.Name}' does not have enough capacity. Please modify your selection.", conflictResult.Value);
+        }
+
+
+        // --- CASE 6: FAIL - CLASS PRICE IS 0 ---
+        [Fact]
+        [Trait("LevelTesting", "Unit Testing")]
+        public async Task CreatePlan_Fail_ClassPriceZero_ShouldReturn400BadRequest()
+        {
+            // ARRANGE
+            var logger = new Mock<ILogger<PlansController>>().Object;
+            var controller = new PlansController(_context, logger);
+
+            var createDTO = new PlanForCreateDTO
+            {
+                Name = "Plan for full class",
+                PaymentMethodId = paymentMethod.Id,
+                Items = new List<PlanItemForCreateDTO>
+                {
+                    
+                    new PlanItemForCreateDTO { ClassId = classFree.Id, Goal = "Trying to get in" }
+                }
+            };
+
+            // ACT
+            var result = await controller.CreatePlan(createDTO);
+
+            // ASSERT
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+            Assert.Equal(400, badRequestResult.StatusCode);
+            Assert.Equal("Error! You cannot select classes whose price is 0.", badRequestResult.Value);
         }
     }
 }
