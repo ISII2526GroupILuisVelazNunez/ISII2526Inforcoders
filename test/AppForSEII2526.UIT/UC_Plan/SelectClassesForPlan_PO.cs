@@ -54,5 +54,10 @@
         {
             return CheckBodyTable(expectedClasses, By.Id("TableOfClasses"));
         }
+
+        public void RemoveClass(string className)
+        {
+            _driver.FindElement(By.Id("removeClass_" + className)).Click();
+        }
     }
 }
